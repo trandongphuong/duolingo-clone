@@ -1,0 +1,11 @@
+lesson_code,order,hanzi,pinyin,meaning_vi,example_zh,example_pinyin,example_vi,audio_file,tags
+L01,1,你好,nǐ hǎo,Xin chào,你好！,Nǐ hǎo!,Xin chào!,,chao_hoi
+L01,2,谢谢,xièxie,Cảm ơn,谢谢你。,Xièxie nǐ.,Cảm ơn bạn.,,chao_hoi
+L01,3,再见,zàijiàn,Tạm biệt,明天见！,Míngtiān jiàn!,Hẹn gặp ngày mai!,,chao_hoi
+L01,4,请,qǐng,Xin mời / làm ơn,请坐。,Qǐng zuò.,Xin mời ngồi.,,lich_su
+L01,5,对不起,duìbuqǐ,Xin lỗi,对不起。,Duìbuqǐ.,Xin lỗi.,,lich_su
+L01,6,海,hǎi,Biển,我喜欢大海。,Wǒ xǐhuan dàhǎi.,Tôi thích biển.,,bien
+L01,7,船,chuán,Thuyền / tàu,这是一条船。,Zhè shì yì tiáo chuán.,Đây là một chiếc thuyền.,,bien
+L01,8,天气,tiānqì,Thời tiết,今天天气很好。,Jīntiān tiānqì hěn hǎo.,Thời tiết hôm nay rất đẹp.,,thoi_tiet
+L01,9,朋友,péngyou,Bạn bè,他是我的朋友。,Tā shì wǒ de péngyou.,Anh ấy là bạn của tôi.,,giao_tiep
+L01,10,安全,ānquán,An toàn,安全很重要。,Ānquán hěn zhòngyào.,An toàn rất quan trọng.,,an_toan
