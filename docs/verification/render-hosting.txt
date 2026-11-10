@@ -1,0 +1,71 @@
+Render actual hosting verification — 2026-11-10
+Branch: feat/han-ngu-bien-demo
+Deployed application commit: 86baddd41bee2333e2c000b5bf1c703714df77ef
+User-facing dates use Asia/Bangkok; provider timestamps below explicitly UTC.
+
+Authorization:
+  User authorized public synthetic-data demo, selected Render Free, connected
+  Render and confirmed Tony's workspace for one Free web + one Free PostgreSQL.
+
+PASS — Render Blueprint planning, apply request and resource creation.
+  Blueprint exs-dbph943bc2fs73a6q9c0; planned from commit375ef60.
+  Outcome planned, notices[], requiredManualEnvVars[]. Two create actions:
+    hnb-demo-db-xpuz: PostgreSQL17, free, Singapore, database hnb_demo,
+      public ipAllowList[], no autoscaling or HA.
+    hnb-demo-web-xpuz: Docker, free, Singapore, one instance, /sign-in healthcheck,
+      node render-start.mjs; private database connection; generated secrets;
+      autoDeployTrigger off, autoSync false. Existing resources unchanged.
+  Approved sync exe-dbph94jbc2fs73a6qbg0; returned pending before provisioning.
+  This does not assert that the original sync finished successfully: the first
+  image build failed below, then a direct redeploy corrected the web service.
+
+FAIL (resolved) — initial Docker build.
+  dep-dbpha58n74is73dvand0 /375ef60 finished build_failed.
+  Next build, standalone and maintenance bundling completed; final COPY failed:
+    error: failed to solve: invalid user index: -1
+  at COPY --link --from=builder --chown=node:node /runtime/ /
+  Changed to numeric --chown=1000:1000 in commit86baddd. This matches the
+  non-root node UID/GID used in the pinned Node image and local runtime checks.
+
+PASS — actual corrected deployment and bootstrap on Render.
+  Web service srv-dbpha4on74is73dvam2g, plan free, not suspended.
+  Deployment dep-dbphbh0m7kps73auku9g:
+    commit86baddd41bee2333e2c000b5bf1c703714df77ef
+    started 2026-11-10T13:01:56Z
+    status live, finished 2026-11-10T13:03:38Z
+  Sanitized application/provider log excerpts:
+    13:03:23Z Seed demo: PASS.
+    13:03:26Z Đã tạo tài khoản quản trị demo.
+    13:03:26Z Bootstrap demo: PASS. Chỉ sử dụng dữ liệu giả lập.
+    13:03:28Z Next.js16.4.3, network0.0.0.0:10000, Ready.
+    13:03:39Z Your service is live.
+    13:03:39Z Available at your primary URL
+      https://hnb-demo-web-xpuz.onrender.com
+  The URL is provider-returned, not inferred from resource names.
+
+PASS — provider database metadata.
+  dpg-dbph9d8n74is73dv8i10-a: status available, plan free, PostgreSQL17,
+  Singapore, database hnb_demo, ipAllowList[], expiresAt
+  2026-12-10T12:57:26Z (10/12/2026 in Asia/Bangkok).
+
+NOT TESTED — independent public HTTP/browser/login/RBAC/E2E.
+  Normal inherited-proxy curl received CONNECT403, no app HTTP response;
+  Chromium ERR_TUNNEL_CONNECTION_FAILED. Independent web tool could not
+  access /sign-in, /api/users or /author. See render-public.txt.
+  Provider Live/health and bootstrap logs do not replace a public-client test.
+
+NOT TESTED — read-only cloud SQL inspection.
+  Render SQL tool reported that ipAllowList[] blocks external connections.
+  Kept database private; no networking relaxation attempted.
+  No hosted row-count/password-hash assertions made from that failed query.
+
+NOT TESTED — hosted upload/media persistence, cookie flags in browser,
+  forced sleep/restart,30-day expiry and billing/overage behavior.
+  No paid plan or resource was selected. Usage remains subject to workspace
+  quotas. Password/session/connection secret values are absent from evidence.
+
+Owner access:
+  Login https://hnb-demo-web-xpuz.onrender.com/sign-in as demo_admin.
+  Owner retrieves generated DEMO_ADMIN_PASSWORD in web Environment at:
+    https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g
+  This report does not certify all product acceptance criteria or real LAN D02.

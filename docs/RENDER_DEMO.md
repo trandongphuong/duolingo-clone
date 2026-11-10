@@ -2,9 +2,13 @@
 
 Người dùng đã chọn Render Free cho demo Internet dùng dữ liệu giả. `render.yaml` cấu hình một web Docker và một PostgreSQL riêng, đều ghi rõ `plan: free`, cùng region Singapore. Database tên `hnb_demo`, PostgreSQL 17, chặn kết nối public bằng `ipAllowList: []`; web dùng connection string private do Render cấp. Auto-deploy từ code push được tắt.
 
-**Trạng thái:** cấu hình đã chuẩn bị trên nhánh `feat/han-ngu-bien-demo`. Render đã kết nối và người dùng xác nhận `Tony's workspace`; chưa cấp tài nguyên và chưa có URL ứng dụng công khai được xác minh. Chưa phát sinh phí hosting. URL tạo Blueprint dưới đây là trang thiết lập dịch vụ, không phải URL ứng dụng.
+**Trạng thái:** Render đã triển khai bản `86baddd` trong `Tony's workspace`, web và PostgreSQL đều Free. Deployment `dep-dbphbh0m7kps73auku9g` báo **Live**, log xác nhận seed/admin/bootstrap thành công. [Trang đăng nhập demo](https://hnb-demo-web-xpuz.onrender.com/sign-in); [web Dashboard](https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g). Chủ tài khoản lấy giá trị secret `DEMO_ADMIN_PASSWORD` trong Environment của web để đăng nhập bằng `demo_admin`. Không có secret được đưa vào Git hoặc tài liệu.
+
+Database Free hiện có hạn đến **10/12/2026**. Kiểm tra public-client/browser bị môi trường kiểm thử chặn và công cụ SQL không truy cập được DB private, nên các phần đó vẫn **NOT TESTED**; không mở public database để vượt giới hạn kiểm thử. Xem [bằng chứng hosting](verification/render-hosting.txt) và [giới hạn public QA](verification/render-public.txt).
 
 ## Mở trang tạo demo
+
+Phần dưới dành cho instance mới. Không tạo trùng nếu đang dùng demo đã Live ở trên.
 
 [Tạo demo trên Render Free từ nhánh demo](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Ftrandongphuong%2Fduolingo-clone%2Ftree%2Ffeat%2Fhan-ngu-bien-demo)
 
@@ -29,7 +33,7 @@ Blueprint dùng tên tài nguyên cố định. Trước khi tạo, bảo đảm
 
 Kiểm tra Live/healthcheck, HTTPS và cookie Secure/HttpOnly/SameSite; đăng nhập/logout; học khóa mẫu và resume; tạo bài nháp/import CSV; upload/phát file giả. Restart web phải giữ tài khoản, điểm và nội dung trong PostgreSQL; media có thể mất theo giới hạn Free. Kiểm tra banner cảnh báo lưu trữ tạm. Chỉ dùng dữ liệu giả và giữ nhãn học liệu mẫu chưa thẩm định.
 
-Hiện provisioning, build trên Render, origin HTTPS thật, startup với Render Postgres, đăng nhập và E2E tại URL công khai đều **NOT TESTED**. Kiểm tra YAML cục bộ không thay thế xác thực Blueprint với workspace Render hoặc thử deploy thực tế.
+PASS hiện tại: Blueprint planning/approval, cấp tài nguyên Free, Docker build trên Render sau khi sửa COPY sang UID `1000:1000`, startup/seed/admin và trạng thái Live. NOT TESTED: trình duyệt/đăng nhập/E2E công khai, upload hoặc mất media trên hosting, cookie hosted thực tế và SQL trực tiếp vào DB private. Public-client bị proxy và công cụ web chặn; giữ nguyên kiểm soát mạng của database. Các giới hạn này không được tính thành ứng dụng FAIL hoặc nghiệm thu hoàn tất.
 
 ## Tài liệu chính thức đã đối chiếu
 

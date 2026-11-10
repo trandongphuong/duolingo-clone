@@ -1,0 +1,47 @@
+Render public guest QA — 2026-11-10
+URL supplied by Render API: https://hnb-demo-web-xpuz.onrender.com
+Scope: read-only guest checks; no passwords, login attempts, data mutations,
+provider changes, new packages, new infrastructure or costs.
+
+Executor network readiness / access diagnosis
+  Managed executor ccarenv_b64_Y2NhcmVudl83YjI2NGJlNDY1NDA4MTkxYmI4MGE4NDFmNmNjOGExZA.
+  Runtime observations_current=true, network policy restricted/enforced,
+  allowed_hosts=[]; no Render app host in the startup egress rules.
+  Read cloud-environment runtime and networking references before probes.
+
+NOT TESTED — application HTTP through the executor.
+  curl using the inherited proxy and CA trust (TLS verification enabled):
+    curl --max-time 20 ... https://hnb-demo-web-xpuz.onrender.com/sign-in
+  Result: exit 56, CONNECT tunnel failed response 403, HTTP 000.
+  This is an executor proxy denial before the app request, not an HTTP 403
+  from the deployed application. No direct connection or policy bypass used.
+
+NOT TESTED — browser guest UI and responsive/accessibility checks.
+  Existing system Chromium launched headless through the supplied HTTPS proxy
+  with normal TLS checking. A 360x800 navigation attempt failed before loading:
+    page.goto: net::ERR_TUNNEL_CONNECTION_FAILED
+  No page DOM was available. 360/1440 overflow, labels, rendered warning,
+  keyboard interaction and screenshots are not marked PASS for this URL.
+  Chromium was closed; no packages, networking changes or bypasses used.
+
+Provider readiness supplied by the deployment coordinator
+  Render reported deployment dep-dbphbh0m7kps73auku9g LIVE at
+  2026-11-10T13:03:38Z, commit 86baddd41bee2333e2c000b5bf1c703714df77ef.
+  This guest QA agent did not change the service or its network configuration.
+
+NOT TESTED — independent public web-tool guest assertions after Live.
+  Used the provided web search/open tool as an independent read-only surface:
+    https://hnb-demo-web-xpuz.onrender.com/sign-in
+    https://hnb-demo-web-xpuz.onrender.com/api/users
+    https://hnb-demo-web-xpuz.onrender.com/author
+  All three returned: "URL ... is not accessible via this tool."
+  No application HTML, HTTP status, redirect target or response headers were
+  supplied. The tool did not provide a more specific cause. No repeated probes.
+  Sign-in form/title/notice, anonymous /api/users rejection, /author redirect,
+  public TLS/cookie attributes, hosted login and browser E2E therefore remain
+  NOT TESTED by these client surfaces. These tool-access blockers do not
+  establish an application failure or replace the coordinator's Render logs.
+
+No credentials were requested or guessed. No login POST, user/course/media
+write, provider mutation, package install, infrastructure or networking change
+was performed. No public screenshots were generated.

@@ -4,7 +4,7 @@ Người dùng đã cho phép triển khai một bản demo có đăng nhập đ
 
 ## Trạng thái và điều kiện triển khai
 
-Người dùng đã chọn **Render Free**. Xem [cấu hình và liên kết tạo demo Render](RENDER_DEMO.md). Chưa có URL demo công khai được xác minh; tài khoản Render chưa được kết nối và chưa tạo tài nguyên hoặc khoản phí. Trước khi tạo tài nguyên phải kiểm tra quyền, gói Free và hạn mức thực tế của workspace. Không tự đăng ký gói trả phí hoặc cấp quyền mới.
+Người dùng đã chọn **Render Free**, kết nối tài khoản và xác nhận `Tony's workspace`. Demo hiện được Render báo Live tại [trang đăng nhập](https://hnb-demo-web-xpuz.onrender.com/sign-in), log xác nhận bootstrap/admin thành công. Xem [chi tiết và giới hạn kiểm chứng Render](RENDER_DEMO.md). Chỉ cấp hai tài nguyên Free; không nâng gói hoặc thêm tài nguyên trả phí. Đăng nhập/E2E từ trình duyệt công khai vẫn NOT TESTED do môi trường kiểm thử chặn truy cập.
 
 Môi trường chạy cần:
 
@@ -67,6 +67,6 @@ Migration/seed dùng cơ chế idempotent hiện có; không xóa dữ liệu ho
 4. Chạy bootstrap một lần từ source hoặc image có maintenance bundle. Nếu dùng pre-deploy hook, nó chỉ cần kết nối PostgreSQL và không đọc/ghi media; một số hosting, gồm Railway, không mount volume vào hook và không giữ thay đổi filesystem của hook.
 5. Khởi động web, kiểm tra `/sign-in`, đăng nhập admin, mở khóa mẫu, học một thẻ, kiểm tra tiến độ, tạo khóa nháp và lưu media giả lập. Khởi động lại dịch vụ và xác nhận database còn nguyên trong thời hạn Free; xác nhận media theo chính sách storage. Render Free có thể mất media khi restart.
 6. Kiểm tra cookie có cờ Secure/HttpOnly/SameSite, route quản trị yêu cầu đăng nhập, không có secrets trong log, dữ liệu mẫu vẫn có nhãn chưa thẩm định. Chạy lại bootstrap và xác nhận tài khoản/mật khẩu, dữ liệu và tiến độ không bị reset.
-7. Chỉ gửi URL HTTPS thật đã mở được qua trình duyệt cho người dùng, kèm cách nhận tài khoản qua kênh phù hợp. Không công bố credential trên repository hoặc tài liệu này.
+7. Gửi URL HTTPS thật do provider cấp, kèm bằng chứng Live và cách nhận tài khoản qua kênh phù hợp. Phân biệt trạng thái provider với kiểm chứng trình duyệt độc lập; khi môi trường chặn public-client, ghi rõ NOT TESTED và lý do. Không công bố credential trên repository hoặc tài liệu này.
 
-Chỉ báo PASS khi có bằng chứng chạy thực tế. Trước khi kết nối hosting, provisioning, HTTPS và kiểm tra end-to-end trên URL công khai đều là NOT TESTED. Không xem việc chuẩn bị script này là đã triển khai xong.
+Chỉ báo PASS khi có bằng chứng chạy thực tế. Trạng thái và log hosting được lưu trong `docs/verification/render-hosting.txt`; trình duyệt/đăng nhập/E2E trên URL công khai vẫn NOT TESTED trong môi trường hiện tại. Không xem trạng thái Live là hoàn tất nghiệm thu sản phẩm hoặc chứng nhận offline/LAN thật.
