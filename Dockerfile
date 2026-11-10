@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=.,target=/source,readonly \
 # App and tools share compact layers. Maintenance scripts are bundled, so runtime
 # contains neither the full development dependency tree nor a package install step.
 FROM ${NODE_IMAGE} AS runtime
-COPY --link --from=builder --chown=node:node /runtime/ /
+COPY --link --from=builder --chown=1000:1000 /runtime/ /
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 MEDIA_DIR=/data/media
 USER node
