@@ -1,0 +1,4 @@
+sha256:7ce4566b70c9e51bb75b85840cb5542f0cdc46a7160703f8c3a658d75db5ab3c han-ngu-bien:1.0
+sha256:b3759eebbb08a7ea3ebbe88e0e111f861dac162423cc55adc87e06870b3f4c32 han-ngu-bien-tools:1.0
+sha256:aac5ed9e090c8b3e134bf1dcf3f9fe0787a29cecdf7867de8b53b5d8abc3eef2 postgres:17-alpine
+sha256:dc73b49f5124cf2ee538dfbdfbd121f0b4ccdcb20fea30f3a81bd477c02e2bb5 nginx:1.28-alpine

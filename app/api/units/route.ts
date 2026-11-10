@@ -1,30 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
-
 import db from "@/db/drizzle";
 import { units } from "@/db/schema";
-import { getIsAdmin } from "@/lib/admin";
-
-export const GET = async () => {
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const data = await db.query.units.findMany();
-
-  return NextResponse.json(data);
-};
-
-export const POST = async (req: NextRequest) => {
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const body = (await req.json()) as typeof units.$inferSelect;
-
-  const data = await db
-    .insert(units)
-    .values({
-      ...body,
-    })
-    .returning();
-
-  return NextResponse.json(data[0]);
-};
+import { adminGuard, apiError, listResponse, advancedReadOnly } from "@/lib/admin-api";
+export async function GET(request:Request) {
+ try {await adminGuard(request); return listResponse(request,"units",await db.select().from(units));} catch(error) {return apiError(error);}
+}
+export const POST=advancedReadOnly;

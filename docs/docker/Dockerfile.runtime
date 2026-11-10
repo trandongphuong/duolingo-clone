@@ -1,0 +1,14 @@
+# syntax=docker/dockerfile:1
+# Alternate packaging path: input must be the output of prepare-runtime.cjs,
+# produced from a successful pinned-dependency production build on the build host.
+ARG NODE_IMAGE=node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
+FROM ${NODE_IMAGE} AS runtime
+COPY --link --chown=node:node . /
+WORKDIR /app
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 MEDIA_DIR=/data/media
+USER node
+EXPOSE 3000
+FROM runtime AS tools
+CMD ["npm", "run", "db:migrate"]
+FROM runtime AS app
+CMD ["node", "server.js"]

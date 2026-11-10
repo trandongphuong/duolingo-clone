@@ -1,127 +1,74 @@
 "use server";
 
-import { auth, currentUser } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { MAX_HEARTS, POINTS_TO_REFILL } from "@/constants";
+import { MAX_HEARTS } from "@/constants";
 import db from "@/db/drizzle";
-import {
-  getCourseById,
-  getUserProgress,
-  getUserSubscription,
-} from "@/db/queries";
-import { challengeProgress, challenges, userProgress } from "@/db/schema";
+import { getCourseById } from "@/db/queries";
+import { courses, lessons, units, userProgress } from "@/db/schema";
+import { auth, currentUser } from "@/lib/auth";
 
-export const upsertUserProgress = async (courseId: number) => {
+export async function upsertUserProgress(courseId: number) {
+  if (!Number.isSafeInteger(courseId) || courseId < 1) throw new Error("Mã khóa học không hợp lệ.");
   const { userId } = await auth();
   const user = await currentUser();
-
-  if (!userId || !user) throw new Error("Unauthorized.");
-
+  if (!userId || !user) throw new Error("Vui lòng đăng nhập.");
   const course = await getCourseById(courseId);
-
-  if (!course) throw new Error("Course not found.");
-
-  if (!course.units.length || !course.units[0].lessons.length)
-    throw new Error("Course is empty.");
-
-  const existingUserProgress = await getUserProgress();
-
-  if (existingUserProgress) {
-    await db
-      .update(userProgress)
-      .set({
-        activeCourseId: courseId,
-        userName: user.firstName || "User",
-        userImageSrc: user.imageUrl || "/mascot.svg",
-      })
-      .where(eq(userProgress.userId, userId));
-
-    revalidatePath("/courses");
-    revalidatePath("/learn");
-    redirect("/learn");
-  }
-
-  await db.insert(userProgress).values({
-    userId,
+  if (!course || !course.units.some((unit) => unit.lessons.length))
+    throw new Error("Khóa học chưa có bài được xuất bản.");
+  const profile = {
     activeCourseId: courseId,
-    userName: user.firstName || "User",
-    userImageSrc: user.imageUrl || "/mascot.svg",
-  });
-
+    userName: user.firstName || "Học viên",
+    userImageSrc: user.imageUrl || "/han-ngu-bien.svg",
+  };
+  await db
+    .insert(userProgress)
+    .values({ userId, ...profile })
+    .onConflictDoUpdate({ target: userProgress.userId, set: profile });
   revalidatePath("/courses");
   revalidatePath("/learn");
-  redirect("/learn");
-};
+  return { nextPath: "/learn" as const };
+}
 
-export const reduceHearts = async (challengeId: number) => {
+// Retained for legacy widgets. Practice has no paid limits and never deducts points.
+export async function refillHearts() {
   const { userId } = await auth();
-
-  if (!userId) throw new Error("Unauthorized.");
-
-  const currentUserProgress = await getUserProgress();
-  const userSubscription = await getUserSubscription();
-
-  const challenge = await db.query.challenges.findFirst({
-    where: eq(challenges.id, challengeId),
-  });
-
-  if (!challenge) throw new Error("Challenge not found.");
-
-  const lessonId = challenge.lessonId;
-
-  const existingChallengeProgress = await db.query.challengeProgress.findFirst({
-    where: and(
-      eq(challengeProgress.userId, userId),
-      eq(challengeProgress.challengeId, challengeId)
-    ),
-  });
-
-  const isPractice = !!existingChallengeProgress;
-
-  if (isPractice) return { error: "practice" };
-
-  if (!currentUserProgress) throw new Error("User progress not found.");
-
-  if (userSubscription?.isActive) return { error: "subscription" };
-
-  if (currentUserProgress.hearts === 0) return { error: "hearts" };
-
+  if (!userId) throw new Error("Vui lòng đăng nhập.");
   await db
     .update(userProgress)
-    .set({
-      hearts: Math.max(currentUserProgress.hearts - 1, 0),
-    })
+    .set({ hearts: MAX_HEARTS })
     .where(eq(userProgress.userId, userId));
-
-  revalidatePath("/shop");
   revalidatePath("/learn");
-  revalidatePath("/quests");
-  revalidatePath("/leaderboard");
-  revalidatePath(`/lesson/${lessonId}`);
-};
+}
 
-export const refillHearts = async () => {
-  const currentUserProgress = await getUserProgress();
-
-  if (!currentUserProgress) throw new Error("User progress not found.");
-  if (currentUserProgress.hearts === MAX_HEARTS)
-    throw new Error("Hearts are already full.");
-  if (currentUserProgress.points < POINTS_TO_REFILL)
-    throw new Error("Not enough points.");
-
+export async function startReviewLesson(lessonId: number) {
+  const user = await currentUser();
+  if (!user || !Number.isSafeInteger(lessonId) || lessonId < 1)
+    throw new Error("Yêu cầu không hợp lệ.");
+  const [lesson] = await db
+    .select({ id: lessons.id, courseId: courses.id })
+    .from(lessons)
+    .innerJoin(units, eq(lessons.unitId, units.id))
+    .innerJoin(courses, eq(units.courseId, courses.id))
+    .where(
+      and(
+        eq(lessons.id, lessonId),
+        eq(lessons.status, "published"),
+        eq(courses.status, "published")
+      )
+    );
+  if (!lesson) throw new Error("Bài học chưa được xuất bản.");
+  const profile = {
+    activeCourseId: lesson.courseId,
+    userName: user.firstName,
+    userImageSrc: user.imageUrl,
+  };
   await db
-    .update(userProgress)
-    .set({
-      hearts: MAX_HEARTS,
-      points: currentUserProgress.points - POINTS_TO_REFILL,
-    })
-    .where(eq(userProgress.userId, currentUserProgress.userId));
-
-  revalidatePath("/shop");
+    .insert(userProgress)
+    .values({ userId: user.id, ...profile })
+    .onConflictDoUpdate({ target: userProgress.userId, set: profile });
   revalidatePath("/learn");
-  revalidatePath("/quests");
-  revalidatePath("/leaderboard");
-};
+  redirect(`/lesson/${lesson.id}?review=1`);
+}

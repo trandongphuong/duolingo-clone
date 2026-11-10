@@ -1,21 +1,35 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   integer,
+  index,
   pgEnum,
   pgTable,
   serial,
   text,
   timestamp,
   unique,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 import { MAX_HEARTS } from "@/constants";
+
+export const contentStatus = pgEnum("content_status", [
+  "draft",
+  "review",
+  "published",
+  "archived",
+]);
 
 export const courses = pgTable("courses", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   imageSrc: text("image_src").notNull(),
+  slug: text("slug").unique(),
+  description: text("description").notNull().default(""),
+  status: contentStatus("status").notNull().default("draft"),
+  createdBy: text("created_by"),
+  sampleUnreviewed: boolean("sample_unreviewed").notNull().default(true),
 });
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -43,16 +57,29 @@ export const unitsRelations = relations(units, ({ many, one }) => ({
   lessons: many(lessons),
 }));
 
-export const lessons = pgTable("lessons", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  unitId: integer("unit_id")
-    .references(() => units.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  order: integer("order").notNull(),
-});
+export const lessons = pgTable(
+  "lessons",
+  {
+    id: serial("id").primaryKey(),
+    code: text("code").notNull().default(""),
+    description: text("description").notNull().default(""),
+    status: contentStatus("status").notNull().default("draft"),
+    version: integer("version").notNull().default(1),
+    previousVersionId: integer("previous_version_id"),
+    title: text("title").notNull(),
+    unitId: integer("unit_id")
+      .references(() => units.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    order: integer("order").notNull(),
+  },
+  (t) => [
+    uniqueIndex("lesson_family_version_unique")
+      .on(t.unitId, t.code, t.version)
+      .where(sql`${t.code} <> ''`),
+  ]
+);
 
 export const lessonsRelations = relations(lessons, ({ one, many }) => ({
   unit: one(units, {
@@ -60,21 +87,31 @@ export const lessonsRelations = relations(lessons, ({ one, many }) => ({
     references: [units.id],
   }),
   challenges: many(challenges),
+  vocabulary: many(vocabularyEntries),
 }));
 
 export const challengesEnum = pgEnum("type", ["SELECT", "ASSIST"]);
 
-export const challenges = pgTable("challenges", {
-  id: serial("id").primaryKey(),
-  lessonId: integer("lesson_id")
-    .references(() => lessons.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  type: challengesEnum("type").notNull(),
-  question: text("question").notNull(),
-  order: integer("order").notNull(),
-});
+export const challenges = pgTable(
+  "challenges",
+  {
+    id: serial("id").primaryKey(),
+    lessonId: integer("lesson_id")
+      .references(() => lessons.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    type: challengesEnum("type").notNull(),
+    question: text("question").notNull(),
+    order: integer("order").notNull(),
+    vocabularyId: integer("vocabulary_id"),
+    sourceKey: text("source_key"),
+  },
+  (t) => [
+    unique().on(t.lessonId, t.sourceKey),
+    index("challenges_lesson_idx").on(t.lessonId),
+  ]
+);
 
 export const challengesRelations = relations(challenges, ({ one, many }) => ({
   lesson: one(lessons, {
@@ -159,3 +196,81 @@ export const userSubscription = pgTable("user_subscription", {
   stripePriceId: text("stripe_price_id").notNull(),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end").notNull(),
 });
+
+export const vocabularyEntries = pgTable(
+  "vocabulary_entries",
+  {
+    id: serial("id").primaryKey(),
+    lessonId: integer("lesson_id")
+      .notNull()
+      .references(() => lessons.id, { onDelete: "restrict" }),
+    sourceKey: text("source_key").notNull(),
+    order: integer("order").notNull(),
+    hanzi: text("hanzi").notNull(),
+    pinyin: text("pinyin").notNull(),
+    meaningVi: text("meaning_vi").notNull(),
+    exampleZh: text("example_zh").notNull().default(""),
+    examplePinyin: text("example_pinyin").notNull().default(""),
+    exampleVi: text("example_vi").notNull().default(""),
+    audioPath: text("audio_path"),
+    tags: text("tags").notNull().default(""),
+    sourceNote: text("source_note")
+      .notNull()
+      .default("Dữ liệu mẫu chưa kiểm duyệt"),
+  },
+  (t) => [unique().on(t.lessonId, t.sourceKey)]
+);
+
+export const vocabularyEntriesRelations = relations(
+  vocabularyEntries,
+  ({ one }) => ({
+    lesson: one(lessons, {
+      fields: [vocabularyEntries.lessonId],
+      references: [lessons.id],
+    }),
+  })
+);
+
+export const exerciseAttempts = pgTable(
+  "exercise_attempts",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    challengeId: integer("challenge_id")
+      .notNull()
+      .references(() => challenges.id, { onDelete: "restrict" }),
+    optionId: integer("option_id").notNull(),
+    isCorrect: boolean("is_correct").notNull(),
+    answeredAt: timestamp("answered_at").notNull().defaultNow(),
+  },
+  (t) => [index("attempts_user_time_idx").on(t.userId, t.answeredAt)]
+);
+
+export const reviewSchedules = pgTable(
+  "review_schedules",
+  {
+    id: serial("id").primaryKey(),
+    userId: text("user_id").notNull(),
+    vocabularyId: integer("vocabulary_id")
+      .notNull()
+      .references(() => vocabularyEntries.id, { onDelete: "restrict" }),
+    step: integer("step").notNull().default(0),
+    dueAt: timestamp("due_at").notNull().defaultNow(),
+    lastResult: boolean("last_result").notNull().default(false),
+  },
+  (t) => [
+    unique().on(t.userId, t.vocabularyId),
+    index("review_due_idx").on(t.userId, t.dueAt),
+  ]
+);
+
+export const mediaFiles = pgTable("media_files", {
+  id: text("id").primaryKey(),
+  path: text("path").notNull().unique(),
+  mime: text("mime").notNull(),
+  size: integer("size").notNull(),
+  createdBy: text("created_by").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export { localUsers, sessions, loginAttempts } from "./auth-schema";

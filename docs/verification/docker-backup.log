@@ -1,0 +1,7 @@
+ Container hnb-offline-acceptance-app-1  Stopping
+ Container hnb-offline-acceptance-app-1  Stopped
+Backup complete: /workspace/duolingo-clone/work/offline-backup. Protect it as learner/account data.
+ Container hnb-offline-acceptance-db-1  Waiting
+ Container hnb-offline-acceptance-db-1  Healthy
+ Container hnb-offline-acceptance-app-1  Starting
+ Container hnb-offline-acceptance-app-1  Started

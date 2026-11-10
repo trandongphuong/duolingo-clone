@@ -80,3 +80,13 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+@font-face {font-family: "HNB Sans"; src: url("/fonts/noto-sans-latin.woff2") format("woff2"); font-style:normal; font-weight:100 900; font-display:swap;}
+@font-face {font-family: "HNB Chinese"; src: url("/fonts/noto-sans-sc.woff2") format("woff2"); font-style:normal; font-weight:100 900; font-display:swap;}
+body {font-family:"HNB Sans", "HNB Chinese", sans-serif; color:#0f172a; background:#f8fafc;}
+input, select, textarea {max-width:100%;}
+.hnb-button, .hnb-button-secondary {display:inline-flex; align-items:center; justify-content:center; padding:.75rem 1.25rem; border-radius:.75rem; font-weight:700; min-height:44px;}
+.hnb-button {background:#0369a1;color:white;}
+.hnb-button-secondary {background:white;color:#0369a1;border:1px solid #bae6fd;}
+:focus-visible {outline:3px solid #0284c7;outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after {animation-duration:.01ms !important;transition-duration:.01ms !important;scroll-behavior:auto !important;}}

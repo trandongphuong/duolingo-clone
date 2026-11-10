@@ -9,11 +9,11 @@ import {
 export const UnitList = () => {
   return (
     <List>
-      <Datagrid rowClick="edit">
+      <Datagrid rowClick={false} bulkActionButtons={false}>
         <NumberField source="id" />
         <TextField source="title" />
         <TextField source="description" />
-        <ReferenceField source="courseId" reference="courses" />
+        <ReferenceField link={false} source="courseId" reference="courses" />
         <TextField source="order" />
       </Datagrid>
     </List>

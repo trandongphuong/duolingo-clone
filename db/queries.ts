@@ -1,56 +1,58 @@
 import { cache } from "react";
+import { and, asc, desc, eq, lte, sql } from "drizzle-orm";
 
-import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
-
+import { auth } from "@/lib/auth";
+import { loadLearnerLesson } from "@/lib/learning";
 import db from "./drizzle";
 import {
   challengeProgress,
+  challenges,
   courses,
+  exerciseAttempts,
   lessons,
+  reviewSchedules,
   units,
   userProgress,
-  userSubscription,
+  vocabularyEntries,
 } from "./schema";
 
-const DAY_IN_MS = 86_400_000;
-
 export const getCourses = cache(async () => {
-  const data = await db.query.courses.findMany();
-
-  return data;
+  const { userId } = await auth();
+  if (!userId) return [];
+  return db.query.courses.findMany({
+    where: eq(courses.status, "published"),
+    orderBy: [asc(courses.id)],
+  });
 });
 
 export const getUserProgress = cache(async () => {
   const { userId } = await auth();
-
   if (!userId) return null;
-
-  const data = await db.query.userProgress.findFirst({
+  return db.query.userProgress.findFirst({
     where: eq(userProgress.userId, userId),
-    with: {
-      activeCourse: true,
-    },
+    with: { activeCourse: true },
   });
-
-  return data;
 });
 
 export const getUnits = cache(async () => {
   const { userId } = await auth();
-  const userProgress = await getUserProgress();
-
-  if (!userId || !userProgress?.activeCourseId) return [];
-
-  const data = await db.query.units.findMany({
-    where: eq(units.courseId, userProgress.activeCourseId),
-    orderBy: (units, { asc }) => [asc(units.order)],
+  const progress = await getUserProgress();
+  if (
+    !userId ||
+    !progress?.activeCourseId ||
+    progress.activeCourse?.status !== "published"
+  )
+    return [];
+  const rows = await db.query.units.findMany({
+    where: eq(units.courseId, progress.activeCourseId),
+    orderBy: [asc(units.order), asc(units.id)],
     with: {
       lessons: {
-        orderBy: (lessons, { asc }) => [asc(lessons.order)],
+        where: eq(lessons.status, "published"),
+        orderBy: [asc(lessons.order), asc(lessons.id)],
         with: {
           challenges: {
-            orderBy: (challenges, { asc }) => [asc(challenges.order)],
+            orderBy: [asc(challenges.order)],
             with: {
               challengeProgress: {
                 where: eq(challengeProgress.userId, userId),
@@ -61,186 +63,137 @@ export const getUnits = cache(async () => {
       },
     },
   });
-
-  const normalizedData = data.map((unit) => {
-    const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
-      if (lesson.challenges.length === 0)
-        return { ...lesson, completed: false };
-
-      const allCompletedChallenges = lesson.challenges.every((challenge) => {
-        return (
-          challenge.challengeProgress &&
-          challenge.challengeProgress.length > 0 &&
-          challenge.challengeProgress.every((progress) => progress.completed)
-        );
-      });
-
-      return { ...lesson, completed: allCompletedChallenges };
-    });
-
-    return { ...unit, lessons: lessonsWithCompletedStatus };
-  });
-
-  return normalizedData;
+  return rows.map((unit) => ({
+    ...unit,
+    lessons: unit.lessons.map((lesson) => ({
+      ...lesson,
+      completed:
+        lesson.challenges.length > 0 &&
+        lesson.challenges.every((challenge) =>
+          challenge.challengeProgress.some((item) => item.completed)
+        ),
+    })),
+  }));
 });
 
 export const getCourseById = cache(async (courseId: number) => {
-  const data = await db.query.courses.findFirst({
-    where: eq(courses.id, courseId),
+  const { userId } = await auth();
+  if (!userId || !Number.isSafeInteger(courseId) || courseId < 1) return null;
+  return db.query.courses.findFirst({
+    where: and(eq(courses.id, courseId), eq(courses.status, "published")),
     with: {
       units: {
-        orderBy: (units, { asc }) => [asc(units.order)],
+        orderBy: [asc(units.order)],
         with: {
           lessons: {
-            orderBy: (lessons, { asc }) => [asc(lessons.order)],
+            where: eq(lessons.status, "published"),
+            orderBy: [asc(lessons.order)],
           },
         },
       },
     },
   });
-
-  return data;
 });
 
 export const getCourseProgress = cache(async () => {
-  const { userId } = await auth();
-  const userProgress = await getUserProgress();
-
-  if (!userId || !userProgress?.activeCourseId) return null;
-
-  const unitsInActiveCourse = await db.query.units.findMany({
-    orderBy: (units, { asc }) => [asc(units.order)],
-    where: eq(units.courseId, userProgress.activeCourseId),
-    with: {
-      lessons: {
-        orderBy: (lessons, { asc }) => [asc(lessons.order)],
-        with: {
-          unit: true,
-          challenges: {
-            with: {
-              challengeProgress: {
-                where: eq(challengeProgress.userId, userId),
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const firstUncompletedLesson = unitsInActiveCourse
-    .flatMap((unit) => unit.lessons)
-    .find((lesson) => {
-      return lesson.challenges.some((challenge) => {
-        return (
-          !challenge.challengeProgress ||
-          challenge.challengeProgress.length === 0 ||
-          challenge.challengeProgress.some((progress) => !progress.completed)
-        );
-      });
-    });
-
+  const unitsData = await getUnits();
+  const allLessons = unitsData.flatMap((unit) =>
+    unit.lessons.map((lesson) => ({ ...lesson, unit }))
+  );
+  const activeLesson = allLessons.find(
+    (lesson) => !lesson.completed && lesson.challenges.length > 0
+  );
   return {
-    activeLesson: firstUncompletedLesson,
-    activeLessonId: firstUncompletedLesson?.id,
+    activeLesson,
+    activeLessonId: activeLesson?.id,
+    totalLessons: allLessons.length,
+    completedLessons: allLessons.filter((lesson) => lesson.completed).length,
   };
 });
 
+/** Explicit projections prevent answer keys entering the React Server Component payload. */
 export const getLesson = cache(async (id?: number) => {
   const { userId } = await auth();
-
-  if (!userId) return null;
-
-  const courseProgress = await getCourseProgress();
-  const lessonId = id || courseProgress?.activeLessonId;
-
-  if (!lessonId) return null;
-
-  const data = await db.query.lessons.findFirst({
-    where: eq(lessons.id, lessonId),
-    with: {
-      challenges: {
-        orderBy: (challenges, { asc }) => [asc(challenges.order)],
-        with: {
-          challengeOptions: true,
-          challengeProgress: {
-            where: eq(challengeProgress.userId, userId),
-          },
-        },
-      },
-    },
-  });
-
-  if (!data || !data.challenges) return null;
-
-  const normalizedChallenges = data.challenges.map((challenge) => {
-    const completed =
-      challenge.challengeProgress &&
-      challenge.challengeProgress.length > 0 &&
-      challenge.challengeProgress.every((progress) => progress.completed);
-
-    return { ...challenge, completed };
-  });
-
-  return { ...data, challenges: normalizedChallenges };
+  const progress = await getUserProgress();
+  if (
+    !userId ||
+    !progress?.activeCourseId ||
+    progress.activeCourse?.status !== "published"
+  )
+    return null;
+  const lessonId = id ?? (await getCourseProgress()).activeLessonId;
+  if (!lessonId || !Number.isSafeInteger(lessonId) || lessonId < 1) return null;
+  return loadLearnerLesson(userId, lessonId);
 });
+
+export type LearnerLesson = NonNullable<Awaited<ReturnType<typeof getLesson>>>;
 
 export const getLessonPercentage = cache(async () => {
-  const courseProgress = await getCourseProgress();
-
-  if (!courseProgress?.activeLessonId) return 0;
-
-  const lesson = await getLesson(courseProgress?.activeLessonId);
-
-  if (!lesson || lesson.challenges.length === 0) return 0;
-
-  const completedChallenges = lesson.challenges.filter(
-    (challenge) => challenge.completed
+  const lesson = await getLesson();
+  if (!lesson?.challenges.length) return 0;
+  return Math.round(
+    (lesson.challenges.filter((item) => item.completed).length /
+      lesson.challenges.length) *
+      100
   );
-
-  const percentage = Math.round(
-    (completedChallenges.length / lesson.challenges.length) * 100
-  );
-
-  return percentage;
 });
 
+// Compatibility for legacy sidebar widgets: all local learners have unrestricted practice.
 export const getUserSubscription = cache(async () => {
   const { userId } = await auth();
-
-  if (!userId) return null;
-
-  const data = await db.query.userSubscription.findFirst({
-    where: eq(userSubscription.userId, userId),
-  });
-
-  if (!data) return null;
-
-  const isActive =
-    data.stripePriceId &&
-    data.stripeCurrentPeriodEnd?.getTime() + DAY_IN_MS > Date.now();
-
-  return {
-    ...data,
-    isActive: !!isActive,
-  };
+  return userId ? { isActive: true } : null;
 });
 
 export const getTopTenUsers = cache(async () => {
   const { userId } = await auth();
-
   if (!userId) return [];
-
-  const data = await db.query.userProgress.findMany({
-    orderBy: (userProgress, { desc }) => [desc(userProgress.points)],
+  return db.query.userProgress.findMany({
+    orderBy: [desc(userProgress.points)],
     limit: 10,
-    columns: {
-      userId: true,
-      userName: true,
-      userImageSrc: true,
-      points: true,
-    },
+    columns: { userId: true, userName: true, userImageSrc: true, points: true },
   });
+});
 
-  return data;
+export const getDueReviews = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) return [];
+  return db
+    .select({
+      id: reviewSchedules.id,
+      step: reviewSchedules.step,
+      dueAt: reviewSchedules.dueAt,
+      vocabulary: vocabularyEntries,
+      lessonTitle: lessons.title,
+    })
+    .from(reviewSchedules)
+    .innerJoin(
+      vocabularyEntries,
+      eq(reviewSchedules.vocabularyId, vocabularyEntries.id)
+    )
+    .innerJoin(lessons, eq(vocabularyEntries.lessonId, lessons.id))
+    .innerJoin(units, eq(lessons.unitId, units.id))
+    .innerJoin(courses, eq(units.courseId, courses.id))
+    .where(
+      and(
+        eq(reviewSchedules.userId, userId),
+        lte(reviewSchedules.dueAt, new Date()),
+        eq(lessons.status, "published"),
+        eq(courses.status, "published")
+      )
+    )
+    .orderBy(asc(reviewSchedules.dueAt))
+    .limit(100);
+});
+
+export const getAttemptSummary = cache(async () => {
+  const { userId } = await auth();
+  if (!userId) return { total: 0, correct: 0 };
+  const [summary] = await db
+    .select({
+      total: sql<number>`count(*)::int`,
+      correct: sql<number>`count(*) filter (where ${exerciseAttempts.isCorrect})::int`,
+    })
+    .from(exerciseAttempts)
+    .where(eq(exerciseAttempts.userId, userId));
+  return summary ?? { total: 0, correct: 0 };
 });

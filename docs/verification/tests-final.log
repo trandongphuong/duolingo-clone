@@ -1,0 +1,84 @@
+✔ only admins may manage users (1.611883ms)
+✔ account transitions protect self-lock and the last active admin (0.34789ms)
+✔ two exercise directions with real distinct choices and exactly one answer (16.967659ms)
+✔ generation is stable on repeated import and does not invent distractors (7.813309ms)
+✔ synonymous words are not incorrectly marked as wrong answers (0.764646ms)
+✔ transactional import, repeat protection, RBAC and immutable publication versions (5200.498494ms)
+✔ imports real UTF-8 sample with 10 Chinese/Pinyin/Vietnamese rows and BOM (56.520304ms)
+✔ supports pasted headerless TSV and assigns order (1.696725ms)
+✔ CSV parser preserves quoted commas, newline, quotes and Unicode (1.76218ms)
+✔ reports missing fields, repeated word/order and invalid order with row numbers (0.374213ms)
+✔ same Hanzi in distinct lessons is not duplicate (0.212549ms)
+✔ normalizes Unicode before identifying duplicate words (0.397329ms)
+✔ blocks URLs, traversal, percent escapes and protocol-relative media (1.075862ms)
+✔ rejects duplicate/absent CSV headers and malformed quoting (0.444871ms)
+✔ enforces 2000 row and 5 MiB limits before parsing (7.5131ms)
+✔ rejects non-UTF8 CSV and unsupported macro file extensions (0.713977ms)
+✔ exports formula prefixes and controls as inert quoted text (1.801575ms)
+✔ imports a real XLSX without executing formulas (203.475151ms)
+✔ rejects XLSX formula cells even when cached results appear benign (33.239881ms)
+✔ rejects malformed ZIP disguised as XLSX (0.22934ms)
+✔ reports physical row numbers after empty lines and quoted newlines (0.257344ms)
+✔ bounds ZIP inflation even when uncompressed metadata lies (95.842969ms)
+✔ PostgreSQL grading, replay, authorization and learner payload (3799.539865ms)
+✔ Media remains private to owner/admin until attached to published content (3345.290218ms)
+✔ Re-run migration và seed giữ nguyên khóa tự soạn, điểm và lịch sử đã học (4090.224669ms)
+✔ WAV demo nguyên bản có định dạng hợp lệ, không phải lời nói (3.30679ms)
+✔ Từ chối MIME giả, tệp thực thi/SVG và nội dung rỗng (2.227209ms)
+✔ WAV khai báo chunk/độ dài sai bị từ chối (0.419579ms)
+✔ PNG nội bộ hợp lệ có thể tải lên (2.00213ms)
+✔ ID media không cho phép traversal hoặc tên tệp do client chọn (1.811813ms)
+✔ Hỗ trợ byte-range audio và từ chối range hỏng (3.531584ms)
+✔ Bộ mẫu có 10 bài, 100 mục Hanzi/Pinyin/nghĩa Việt không trùng trong bài (157.393541ms)
+✔ Multipart được giới hạn khi stream, kể cả không có Content-Length (316.877698ms)
+✔ salted bcrypt hashes verify Unicode passwords and reject wrong values (5709.732881ms)
+✔ password and username limits prevent bcrypt truncation and invalid account IDs (2.285659ms)
+✔ sessions use random opaque tokens and deterministic one-way database digests (3.318473ms)
+✔ correct review intervals are 1, 3, 7, 14 days and bounded (2.51678ms)
+✔ wrong answers reset review and become due immediately (0.249886ms)
+✔ cookie mutations require a matching origin (178.386602ms)
+✔ media references cannot reach an external host or traverse directories (0.462776ms)
+account.created {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad',
+  role: 'learner'
+}
+account.update {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad'
+}
+account.update {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad'
+}
+account.resetPassword {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad'
+}
+account.passwordChanged { userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad' }
+account.update {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'fc001074-f082-4b8a-b24b-7141a146f0ad'
+}
+account.created {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'bd0d3710-b5d7-4e47-8158-a6195af35872',
+  role: 'admin'
+}
+account.update {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'bd0d3710-b5d7-4e47-8158-a6195af35872'
+}
+account.update {
+  actor: '1ecfdf1b-96ff-45bd-820b-c92ebe341232',
+  userId: 'bd0d3710-b5d7-4e47-8158-a6195af35872'
+}
+✔ PostgreSQL account creation, RBAC, reset/disable and password change revoke sessions (20142.283451ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 58029.545668

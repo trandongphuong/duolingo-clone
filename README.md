@@ -1,336 +1,92 @@
-<a name="readme-top"></a>
+# Hán ngữ biển 1.0
 
-# Lingo - Interactive platform for language learning.
+Ứng dụng học tiếng Trung giản thể, Pinyin và nghĩa tiếng Việt trong mạng LAN. Phát triển từ Lingo bằng Next.js/React, React Admin, Drizzle và PostgreSQL. Giữ giấy phép MIT và bản quyền upstream trong `LICENSE`.
 
-![Lingo - Interactive platform for language learning.](/.github/images/img_main.png "Lingo - Interactive platform for language learning.")
+**Học liệu mẫu chưa kiểm duyệt.** 10 bài/100 mục chỉ để thử phần mềm. Chưa có bản ghi phát âm Mandarin được thẩm định. Nội dung hàng hải công khai không thay thế IMO SMCP tiếng Anh. Xem `IMPLEMENTATION_STATUS.md` và `docs/ACCEPTANCE_REPORT.md` để biết kiểm thử thực tế; chưa được chứng nhận offline trong mạng thật.
 
-[![Ask Me Anything!](https://flat.badgen.net/static/Ask%20me/anything?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy "Ask Me Anything!")
-[![GitHub license](https://flat.badgen.net/github/license/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/blob/main/LICENSE "GitHub license")
-[![Maintenance](https://flat.badgen.net/static/Maintained/yes?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/commits/main "Maintenance")
-[![GitHub branches](https://flat.badgen.net/github/branches/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/branches "GitHub branches")
-[![Github commits](https://flat.badgen.net/github/commits/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/commits "Github commits")
-[![GitHub issues](https://flat.badgen.net/github/issues/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/issues "GitHub issues")
-[![GitHub pull requests](https://flat.badgen.net/github/prs/sanidhyy/duolingo-clone?icon=github&color=black&scale=1.01)](https://github.com/sanidhyy/duolingo-clone/pulls "GitHub pull requests")
-[![Vercel status](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://lingo-clone.vercel.app/ "Vercel status")
+## Chạy phát triển với dữ liệu giả
 
-<!-- Table of Contents -->
-<details>
-
-<summary>
-
-# :notebook_with_decorative_cover: Table of Contents
-
-</summary>
-
-- [Folder Structure](#bangbang-folder-structure)
-- [Getting Started](#toolbox-getting-started)
-- [Screenshots](#camera-screenshots)
-- [Tech Stack](#gear-tech-stack)
-- [Stats](#wrench-stats)
-- [Contribute](#raised_hands-contribute)
-- [Acknowledgements](#gem-acknowledgements)
-- [Buy Me a Coffee](#coffee-buy-me-a-coffee)
-- [Follow Me](#rocket-follow-me)
-- [Learn More](#books-learn-more)
-- [Deploy on Vercel](#page_with_curl-deploy-on-vercel)
-- [Give A Star](#star-give-a-star)
-- [Star History](#star2-star-history)
-- [Give A Star](#star-give-a-star)
-
-</details>
-
-## :bangbang: Folder Structure
-
-Here is the folder structure of this app.
-
-<!--- FOLDER_STRUCTURE_START --->
-```bash
-duolingo-clone/
-  |- actions/
-    |-- challenge-progress.ts
-    |-- user-progress.ts
-    |-- user-subscription.ts
-  |- app/
-    |-- (auth)/
-    |-- (main)/
-    |-- (marketing)/
-    |-- admin/
-    |-- api/
-    |-- lesson/
-    |-- apple-icon.png
-    |-- favicon.ico
-    |-- globals.css
-    |-- icon1.png
-    |-- icon2.png
-    |-- layout.tsx
-  |- components/
-    |-- modals/
-    |-- ui/
-    |-- banner.tsx
-    |-- feed-wrapper.tsx
-    |-- mobile-header.tsx
-    |-- mobile-sidebar.tsx
-    |-- promo.tsx
-    |-- quests.tsx
-    |-- sidebar-item.tsx
-    |-- sidebar.tsx
-    |-- sticky-wrapper.tsx
-    |-- user-progress.tsx
-  |- config/
-    |-- index.ts
-  |- db/
-    |-- drizzle.ts
-    |-- queries.ts
-    |-- schema.ts
-  |- lib/
-    |-- admin.ts
-    |-- stripe.ts
-    |-- utils.ts
-  |- public/
-  |- scripts/
-    |-- prod.ts
-  |- store/
-    |-- use-exit-modal.ts
-    |-- use-hearts-modal.ts
-    |-- use-practice-modal.ts
-  |- .env.example
-  |- .env/.env.local
-  |- .gitignore
-  |- .prettierignore
-  |- .prettierrc.json
-  |- components.json
-  |- constants.ts
-  |- drizzle.config.ts
-  |- environment.d.ts
-  |- eslint.config.mjs
-  |- next.config.ts
-  |- package.json
-  |- pnpm-lock.yaml
-  |- pnpm-workspace.yaml
-  |- postcss.config.js
-  |- proxy.ts
-  |- tailwind.config.ts
-  |- tsconfig.json
-  |- vercel.ts
-```
-<!--- FOLDER_STRUCTURE_END --->
-
-<br />
-
-## :toolbox: Getting Started
-
-1. Make sure **Git** and **NodeJS** is installed.
-2. Clone this repository to your local computer.
-3. Create `.env.local` file in **root** directory.
-4. Contents of `.env.local`:
-
-```env
-# .env.local
-
-# disabled telemetry
-DO_NOT_TRACK="1"
-NEXT_TELEMETRY_DISABLED="1"
-CLERK_TELEMETRY_DISABLED="1"
-
-# clerk auth keys
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-CLERK_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-# neon db uri
-DATABASE_URL="postgresql://<user>:<password>@<host>:<post>/lingo?sslmode=require"
-
-# stripe api key and webhook
-STRIPE_API_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-STRIPE_WEBHOOK_SECRET=whsec_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-# public app url
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# clerk admin user id(s) separated by comma (,)
-CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-# or CLERK_ADMIN_IDS="user_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx, user_xxxxxxxxxxxxxxxxxxxxxx" for multiple admins.
-
-```
-
-5. Obtain Clerk Authentication Keys
-   1. **Source**: Clerk Dashboard or Settings Page
-   2. **Procedure**:
-      - Log in to your Clerk account.
-      - Navigate to the dashboard or settings page.
-      - Look for the section related to authentication keys.
-      - Copy the `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` provided in that section.
-
-6. Retrieve Neon Database URI
-   1. **Source**: Database Provider (e.g., Neon, PostgreSQL)
-   2. **Procedure**:
-      - Access your database provider's platform or configuration.
-      - Locate the database connection details.
-      - Replace `<user>`, `<password>`, `<host>`, and `<port>` placeholders in the URI with your actual database credentials.
-      - Ensure to include `?sslmode=require` at the end of the URI for SSL mode requirement.
-
-7. Fetch Stripe API Key and Webhook Secret
-   1. **Source**: Stripe Dashboard
-   2. **Procedure**:
-      - Log in to your Stripe account.
-      - Navigate to the dashboard or API settings.
-      - Find the section related to API keys and webhook secrets.
-      - Copy the `STRIPE_API_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
-
-8. Specify Public App URL
-   1. **Procedure**:
-      - Replace `http://localhost:3000` with the URL of your deployed application.
-
-9. Identify Clerk Admin User IDs
-   1. **Source**: Clerk Dashboard or Settings Page
-   2. **Procedure**:
-      - Log in to your Clerk account.
-      - Navigate to the dashboard or settings page.
-      - Find the section related to admin user IDs.
-      - Copy the user IDs provided, ensuring they are separated by commas and spaces.
-
-10. Save and Secure:
-    - Save the changes to the `.env.local` file.
-
-11. Install Project Dependencies using `pnpm install`.
-
-12. Run the Seed Script:
-
-In the same terminal, run the following command to execute the seed script:
+Cần Node 24, Corepack/pnpm 11.11.0 và PostgreSQL 17. Không cần tài khoản Clerk/Neon/Stripe hay API bên ngoài.
 
 ```bash
-pnpm run db:push && pnpm run db:prod
+corepack enable
+corepack pnpm install --frozen-lockfile
+cp .env.example .env.local
 ```
 
-This command uses `tsx` to execute the Typescript file (`scripts/prod.ts`) and writes challenges data in database.
+Sửa `.env.local`: `DATABASE_URL` trỏ PostgreSQL thử nghiệm; `SESSION_PASSWORD` là chuỗi ngẫu nhiên ít nhất 32 ký tự (tạo bằng `openssl rand -base64 48`); `APP_ORIGIN` bằng URL truy cập chính xác. Chỉ demo HTTP cô lập dùng `SESSION_SECURE=false`; production HTTPS dùng `true`. Đặt `MEDIA_DIR` ở thư mục bền vững, mặc định `./work/media` cho phát triển. Không đưa `.env`, mật khẩu, dữ liệu học viên lên Git.
 
-13. Verify Data in Database:
+```bash
+corepack pnpm db:migrate
+corepack pnpm db:seed
+# Bash: nhập mật khẩu kín (ít nhất 12 ký tự, tối đa 72 byte UTF-8).
+read -rs HNB_INITIAL_PASSWORD
+printf '%s' "$HNB_INITIAL_PASSWORD" | corepack pnpm auth:create quantri admin 'Quản trị thử nghiệm'
+unset HNB_INITIAL_PASSWORD
+NEXT_TELEMETRY_DISABLED=1 corepack pnpm dev --hostname 127.0.0.1
+```
 
-Once the script completes, check your database to ensure that the challenges data has been successfully seeded.
+Tạo tài khoản author/learner tại **Tài khoản** sau khi admin đăng nhập, hoặc dùng CLI `auth:create`. Không có đăng ký công khai, mật khẩu mặc định hay tài khoản tự tạo khi khởi động. Khóa/reset mật khẩu thu hồi phiên đang mở; người học tự đổi mật khẩu tại Tài khoản.
 
-14. Now app is fully configured 👍 and you can start using this app using either one of `pnpm dev`.
+Migration versioned có checksum và khóa đồng thời. Chạy lại không xóa dữ liệu. Seed chỉ thêm bộ mẫu chưa tồn tại, không ghi đè khóa do người biên soạn tạo hoặc tiến độ. Không dùng lệnh `db:prod` cũ; entry point cũ đã được thay bằng seed an toàn. Với DB upstream chưa có lịch sử migration của bản này, sao lưu và thử quy trình chuyển đổi trên bản sao trước; không tự áp dụng lên dữ liệu thật.
 
-**NOTE:** Please make sure to keep your API keys and configuration values secure and do not expose them publicly.
+## Soạn khóa và học
 
-### :raising_hand: Need Help?
+1. Author đăng nhập → **Biên soạn** → tạo khóa/chủ đề/bài trong một biểu mẫu.
+2. Dán 10 dòng từ Excel (Hanzi, Pinyin, nghĩa Việt), nhập CSV/XLSX hoặc sửa từng dòng. File mẫu tại `templates/vocabulary_sample.csv`; bộ mẫu100 mục tại `data/vocabulary_sample_100.csv`.
+3. **Xem trước** để nhận lỗi từng dòng và câu hỏi tự sinh. Sửa lỗi → xem trước lại → **Xác nhận lưu bản nháp**. Có lựa chọn bỏ qua trùng hoặc cập nhật toàn bộ bảng nháp. Mỗi lần tối đa 2.000 dòng/5MB; không chạy macro/công thức XLSX.
+4. Author **Gửi duyệt**; admin xem lại → **Xuất bản**. Học viên chỉ thấy khóa/bài đã xuất bản. Bài đã xuất bản khóa sửa; tạo phiên bản nháp mới để giữ nguyên lịch sử cũ.
+5. Học viên chọn khóa → học thẻ Hanzi/Pinyin/nghĩa → luyện chọn nghĩa/chọn chữ. Server chấm đáp án và chỉ cộng10 điểm lần đầu cho mỗi câu. Đăng xuất/đăng nhập hoặc tải lại vẫn giữ tiến độ.
+6. Kết quả cho phép đánh dấu từ chưa nhớ. Ôn tập có lịch đơn giản1/3/7/14 ngày; trả lời sai đưa từ về cần ôn. Không dùng AI.
 
-If you run into issues during installation or setup:
+Âm thanh tải ở chi tiết từng dòng. Chỉ nhận MP3/WAV/OGG, ảnh PNG/JPEG/WebP, kiểm tra MIME/chữ ký/dung lượng; tài nguyên lưu volume nội bộ và phục vụ có xác thực. `data/test-tone.wav` là âm sin do dự án tạo, **không phải giọng đọc Trung**, chỉ dùng kiểm tra upload/play. Người quản lý phải xác nhận quyền sử dụng và chất lượng bản ghi trước khi đưa vào giáo trình.
 
-- **GitHub Discussions** — [Open a Q&A discussion](https://github.com/sanidhyy/duolingo-clone/discussions/new?category=q-a) for setup and troubleshooting help.
-- **Email** — [sanidhyyy@gmail.com](mailto:sanidhyyy@gmail.com)
-- **Discord** — `@sanidhyy`
+Trang `/admin` giữ React Admin cho quản trị nâng cao, chỉ đọc. Thay đổi nội dung qua Biên soạn để mọi thao tác dùng chung khóa/transaction phiên bản. Xóa hàng loạt/cascade bị chặn để giữ lịch sử. Luồng phổ thông là `/author`; không phải nhập từng `challengeOption`. Telemetry React Admin bị tắt.
 
-## :camera: Screenshots
+## Kiểm thử
 
-![Modern UI/UX](/.github/images/img1.png "Modern UI/UX")
+```bash
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm test
+NEXT_TELEMETRY_DISABLED=1 corepack pnpm build
+```
 
-![Quests](/.github/images/img2.png "Quests")
+Unit tests chạy không cần DB. Integration tests cần `TEST_DATABASE_URL` trỏ DB riêng có tên chứa `test` hoặc `e2e` (xem kiểm tra bảo vệ của từng test); tuyệt đối không dùng dữ liệu thật. Áp dụng migration trước. Đặt `DATABASE_URL` cùng DB khi chạy toàn bộ integration vì worker dùng kết nối chung.
 
-![Shop](/.github/images/img3.png "Shop")
+```bash
+TEST_DATABASE_URL="$DATABASE_URL" corepack pnpm test
+# Chỉ trên DB giả có tên chứa test: tạo fixture không có mật khẩu cố định.
+corepack pnpm exec tsx scripts/prepare-test-accounts.ts
+# Khởi động app trên DB đó, sau đó:
+BASE_URL=http://127.0.0.1:3000 corepack pnpm test:e2e
+```
 
-## :gear: Tech Stack
+E2E đọc tài khoản từ `work/test-accounts.json` không được theo dõi Git; Chromium hệ thống `/usr/bin/chromium` hoặc `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Playwright trên máy mới cần Chromium và phụ thuộc đã chuẩn bị từ trước nếu airgap. Các bài integration tạo/xóa fixture riêng; một số E2E để lại khóa mang tên kiểm thử trong DB giả để kiểm tra resume.
 
-[![React JS](https://skillicons.dev/icons?i=react "React JS")](https://react.dev/ "React JS") [![Next JS](https://skillicons.dev/icons?i=next "Next JS")](https://nextjs.org/ "Next JS") [![Typescript](https://skillicons.dev/icons?i=ts "Typescript")](https://www.typescriptlang.org/ "Typescript") [![Tailwind CSS](https://skillicons.dev/icons?i=tailwind "Tailwind CSS")](https://tailwindcss.com/ "Tailwind CSS") [![Vercel](https://skillicons.dev/icons?i=vercel "Vercel")](https://vercel.app/ "Vercel") [![Postgresql](https://skillicons.dev/icons?i=postgres "Postgresql")](https://www.postgresql.org/ "Postgresql")
+## Docker LAN, airgap, sao lưu và khôi phục
 
-## :wrench: Stats
+Xem `docs/LAN_DEPLOYMENT.md`: build image đã khóa digest, app/DB trong network không có route Internet; Nginx chỉ nhận cổng bind đã cấu hình. Postgres không publish port. Có healthcheck, volume DB/media, tools image để migrate/bootstrap/seed khi không Internet.
 
-[![Stats for Lingo](/.github/images/stats.svg "Stats for Lingo")](https://pagespeed.web.dev/analysis?url=https://lingo-clone.vercel.app/ "Stats for Lingo")
+```bash
+cp .env.example .env
+# Sửa secrets và origin, chỉ dùng giá trị giả khi thử nghiệm.
+bash scripts/docker-build.sh
+docker compose --env-file .env up -d db
+docker compose --env-file .env --profile tools run --rm tools npm run db:migrate
+# Bootstrap theo hướng dẫn LAN_DEPLOYMENT, sau đó:
+docker compose --env-file .env up -d --no-build --pull never
+bash scripts/docker-offline-verify.sh
+```
 
-## :raised_hands: Contribute
+`offline-export.sh`/`offline-load.sh` tạo/kiểm SHA-256 và image IDs. `docker-backup.sh` sao lưu DB+media nhất quán; `docker-restore.sh` kiểm archive rồi khôi phục vào instance thử nghiệm. Đọc kỹ tham số và bước xác nhận trong tài liệu trước khi restore. Không xóa volume khi cập nhật. Bản xuất image không chứa DB, tài khoản, `.env` hay media người học.
 
-You might encounter some bugs while using this app. You are more than welcome to contribute. Just submit changes via pull request and I will review them before merging. Make sure you follow community guidelines.
+Production phải được phê duyệt tên miền/chứng chỉ HTTPS nội bộ, cấu hình firewall, role và chính sách backup. Không có tự triển khai công khai. Kiểm thử mô phỏng egress-deny trong cloud và nạp image lại trên cùng host không chứng nhận một máy airgap/LAN thật độc lập.
 
-## :gem: Acknowledgements
+## Tài liệu dự án
 
-Useful resources and dependencies that are used in Lingo.
-
-- Special Thanks to Code with Antonio: https://codewithantonio.com/
-- Kenney Assets: https://kenney.nl/
-- Freesound: https://freesound.org/
-- Elevenlabs AI: https://elevenlabs.io/
-- Flagpack: https://flagpack.xyz/
-
-<!--- DEPENDENCIES_START --->
-- [@clerk/nextjs](https://www.npmjs.com/package/@clerk/nextjs): ^7.9.17
-- [@neondatabase/serverless](https://www.npmjs.com/package/@neondatabase/serverless): ^1.2.0
-- [@radix-ui/react-avatar](https://www.npmjs.com/package/@radix-ui/react-avatar): ^1.3.1
-- [@radix-ui/react-dialog](https://www.npmjs.com/package/@radix-ui/react-dialog): ^1.3.0
-- [@radix-ui/react-progress](https://www.npmjs.com/package/@radix-ui/react-progress): ^1.2.1
-- [@radix-ui/react-separator](https://www.npmjs.com/package/@radix-ui/react-separator): ^1.2.0
-- [@radix-ui/react-slot](https://www.npmjs.com/package/@radix-ui/react-slot): ^1.5.0
-- [@types/node](https://www.npmjs.com/package/@types/node): ^26.6.5
-- [@types/react](https://www.npmjs.com/package/@types/react): ^19.3.0
-- [@types/react-dom](https://www.npmjs.com/package/@types/react-dom): ^19.3.0
-- [@vercel/config](https://www.npmjs.com/package/@vercel/config): ^0.13.0
-- [autoprefixer](https://www.npmjs.com/package/autoprefixer): ^10.6.1
-- [class-variance-authority](https://www.npmjs.com/package/class-variance-authority): ^0.7.1
-- [clsx](https://www.npmjs.com/package/clsx): ^2.1.0
-- [dotenv](https://www.npmjs.com/package/dotenv): ^18.0.1
-- [drizzle-kit](https://www.npmjs.com/package/drizzle-kit): ^0.31.11
-- [drizzle-orm](https://www.npmjs.com/package/drizzle-orm): ^0.45.4
-- [eslint](https://www.npmjs.com/package/eslint): ^9
-- [eslint-config-next](https://www.npmjs.com/package/eslint-config-next): 16.3.6
-- [eslint-config-prettier](https://www.npmjs.com/package/eslint-config-prettier): ^10.1.8
-- [lucide-react](https://www.npmjs.com/package/lucide-react): ^1.52.0
-- [next](https://www.npmjs.com/package/next): ^16.4.3
-- [pg](https://www.npmjs.com/package/pg): ^8.23.1
-- [postcss](https://www.npmjs.com/package/postcss): ^8
-- [prettier](https://www.npmjs.com/package/prettier): ^3.9.10
-- [prettier-plugin-tailwindcss](https://www.npmjs.com/package/prettier-plugin-tailwindcss): ^0.8.0
-- [ra-data-simple-rest](https://www.npmjs.com/package/ra-data-simple-rest): ^5.15.3
-- [react](https://www.npmjs.com/package/react): ^19.3.0
-- [react-admin](https://www.npmjs.com/package/react-admin): ^5.15.4
-- [react-circular-progressbar](https://www.npmjs.com/package/react-circular-progressbar): ^2.2.0
-- [react-confetti](https://www.npmjs.com/package/react-confetti): ^6.4.0
-- [react-dom](https://www.npmjs.com/package/react-dom): ^19.3.0
-- [react-use](https://www.npmjs.com/package/react-use): ^17.6.1
-- [sonner](https://www.npmjs.com/package/sonner): ^2.0.8
-- [stripe](https://www.npmjs.com/package/stripe): ^23.1.0
-- [tailwind-merge](https://www.npmjs.com/package/tailwind-merge): ^3.7.0
-- [tailwindcss](https://www.npmjs.com/package/tailwindcss): ^3.4.19
-- [tailwindcss-animate](https://www.npmjs.com/package/tailwindcss-animate): ^1.0.7
-- [tsx](https://www.npmjs.com/package/tsx): ^4.23.15
-- [typescript](https://www.npmjs.com/package/typescript): ^6
-- [zustand](https://www.npmjs.com/package/zustand): ^5.0.15
-
-<!--- DEPENDENCIES_END --->
-
-## :coffee: Buy Me a Coffee
-
-[<img src="https://img.shields.io/badge/Buy_Me_A_Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" width="200" />](https://www.buymeacoffee.com/sanidhy "Buy me a Coffee")
-
-## :rocket: Follow Me
-
-[![Follow Me](https://img.shields.io/github/followers/sanidhyy?style=social&label=Follow&maxAge=2592000)](https://github.com/sanidhyy "Follow Me")
-[![Tweet about this project](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Fx.com%2F_sanidhyy)](https://x.com/intent/tweet?text=Check+out+this+amazing+app:&url=https%3A%2F%2Fgithub.com%2Fsanidhyy%2Fduolingo-clone "Tweet about this project")
-
-## :books: Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## :page_with_curl: Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
-
-## :star: Give A Star
-
-You can also give this repository a star to show more people and they can use this repository.
-
-## :star2: Star History
-
-<a href="https://star-history.com/#sanidhyy/duolingo-clone&Timeline">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline&theme=dark" />
-  <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline" />
-  <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=sanidhyy/duolingo-clone&type=Timeline" />
-</picture>
-</a>
-
-<br />
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- `SPEC_CHI_TIET.md`, `NGHIEM_THU.md`, `PROMPT_GIAO_VIEC.md`: yêu cầu và tiêu chí gốc.
+- `IMPLEMENTATION_PLAN.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`: kế hoạch, tiến độ và quyết định.
+- `docs/ACCEPTANCE_REPORT.md`: PASS/FAIL/NOT TESTED từng tiêu chí và bằng chứng.
+- `docs/ASSET_LICENSES.md`: nguồn/giấy phép font, logo, ngữ liệu, âm thử nghiệm.
+- `docs/DEPENDENCIES.md`: phụ thuộc và kết quả kiểm tra chuỗi cung ứng.

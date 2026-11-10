@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "lesson_family_version_unique" ON "lessons" USING btree ("unit_id","code","version") WHERE "lessons"."code" <> '';

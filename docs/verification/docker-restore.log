@@ -1,0 +1,6 @@
+database.dump: OK
+media.tar.gz: OK
+ Volume hnb-offline-restore-test_media  Creating
+ Volume hnb-offline-restore-test_media  Created
+Restore completed. Verify counts, login, learner progress, and media before starting app.
+Start only after verification: docker compose up -d --no-build --pull never app

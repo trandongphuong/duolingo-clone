@@ -1,0 +1,61 @@
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.ts took 51ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 4.8s
+  Running TypeScript ...
+  Finished TypeScript in 9.2s ...
+  Collecting page data using 2 workers ...
+  Generating static pages using 2 workers (0/30) ...
+  Generating static pages using 2 workers (7/30) 
+  Generating static pages using 2 workers (14/30) 
+  Generating static pages using 2 workers (22/30) 
+✓ Generating static pages using 2 workers (30/30) in 462ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /account
+├ ƒ /admin
+├ ƒ /api/author/courses
+├ ƒ /api/author/export
+├ ƒ /api/author/lessons
+├ ƒ /api/author/preview
+├ ƒ /api/author/save
+├ ƒ /api/author/template
+├ ƒ /api/author/transition
+├ ƒ /api/challengeOptions
+├ ƒ /api/challengeOptions/[challengeOptionId]
+├ ƒ /api/challenges
+├ ƒ /api/challenges/[challengeId]
+├ ƒ /api/courses
+├ ƒ /api/courses/[courseId]
+├ ƒ /api/lessons
+├ ƒ /api/lessons/[lessonId]
+├ ƒ /api/media
+├ ƒ /api/media/[id]
+├ ƒ /api/units
+├ ƒ /api/units/[unitId]
+├ ƒ /api/users
+├ ƒ /api/users/[userId]
+├ ƒ /api/users/me/password
+├ ƒ /author
+├ ƒ /courses
+├ ○ /icon.svg
+├ ƒ /leaderboard
+├ ƒ /learn
+├ ƒ /lesson
+├ ƒ /lesson/[lessonId]
+├ ƒ /progress
+├ ƒ /quests
+├ ƒ /review
+├ ƒ /shop
+├ ƒ /sign-in/[[...sign-in]]
+└ ƒ /sign-up/[[...sign-up]]
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+Standalone: static/public/templates đã sẵn sàng, không chứa dữ liệu vận hành.

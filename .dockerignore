@@ -1,0 +1,16 @@
+.git
+.next
+node_modules
+.env
+.env.*
+!.env.example
+work
+output
+playwright-report
+test-results
+coverage
+*.log
+*.tsbuildinfo
+*.dump
+*.tar
+*.tar.gz
