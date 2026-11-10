@@ -1,0 +1,69 @@
+Render Free demo preparation verification — 2026-11-10
+Branch: feat/han-ngu-bien-demo
+Scope: local validation of the Blueprint, startup orchestration and freshly
+packaged production runtime. No Render resources or public URL created.
+
+PASS — read-only startup/Blueprint interaction review.
+  render.yaml selects free web + free dedicated PostgreSQL, region Singapore,
+  database hnb_demo, private connection string and ipAllowList: [].
+  Docker command node render-start.mjs matches the packaged /app working dir.
+  Starter requires explicit Render/synthetic-demo flags, maps the provider HTTPS
+  origin, enables Secure cookies, sets a valid listener port and 0.0.0.0 bind,
+  runs guarded bootstrap before web, and removes the initial admin password from
+  the web child environment. No blocking local configuration mismatch found.
+  This review is not Render workspace/schema/provisioning validation.
+
+PASS — root-agent validation of current sources.
+  Config + startup orchestration tests: 11/11 PASS.
+  Full ESLint and full TypeScript check: PASS.
+  Fresh Next.js production build: PASS (compile 3.8s; TypeScript 9.8s).
+  Runtime packaging to work/render-runtime: PASS, including render-start.mjs,
+  maintenance/demo-bootstrap.cjs and the fresh auth/main demo notice.
+
+PASS — actual current packaged runtime, local PostgreSQL and HTTP smoke test.
+  Read the cloud-environment Docker reference before execution. Explicit managed
+  local-socket Docker check: server 29.9.2, vfs. No daemon/config changes.
+  Streamed work/render-runtime directly through tar/stdin into a fresh writable
+  temporary directory in the existing Node v24.22.2 app container. No new image
+  build, container creation, image pull or package installation.
+  Ran as non-root node (UID 1000), with a new unique synthetic hnb_demo_render_*
+  database and MEDIA_DIR pointing only to the streamed template data/media.
+  Started the real render-start.mjs -> bundled bootstrap -> real Next server.
+  Used the container's existing private PostgreSQL route. Local HTTP fetches
+  used a loopback-only temporary port; the synthetic HTTPS origin configured
+  for guards was not presented as a deployed or externally reachable URL.
+  Captured sanitized verification output:
+    PASS streamed current allowlisted runtime: non-root node user can write/read/remove a file in its new template media directory.
+    PASS actual packaged Render starter: fresh-DB bootstrap, SYNTHETIC_ONLY marker and bcrypt cost-12 admin completed before Next.js /sign-in returned HTTP 200; ephemeral-media demo notice visible.
+    PASS repeated startup: /sign-in HTTP 200 and notice preserved; admin identity/password/role/state and synthetic content counts unchanged with a different supplied bootstrap password.
+    PASS lifecycle/privacy: both starter processes exited 143 after SIGTERM; no passwords, session secret, database URL or password hash in captured output.
+    PASS cleanup: removed only the new unique synthetic test database, streamed temporary runtime and its media files; existing app/DB/container configuration/media untouched.
+
+  Notice verification means the response HTML contained aria-label
+  "Lưu ý bản demo" and text "Tệp tải lên chỉ lưu tạm". No browser visual,
+  accessibility, layout or interaction assessment was performed in this check.
+  Sample counts were at least 10 lessons, at least 100 vocabulary entries and
+  exactly one admin. Repeated startup compared account ID/hash/role/active state
+  and course/lesson/vocabulary/user counts, without printing sensitive values.
+  All created test databases, streamed runtime files and probe media were removed.
+
+Known limitation — SIGTERM forwarding during bootstrap.
+  The starter forwards termination to bootstrap itself. Bootstrap migration/seed
+  grandchildren do not explicitly forward signals. Container shutdown stops all
+  descendants; migration/seed transaction and advisory-lock safety remains.
+  The actual runtime shutdown check above occurred after web readiness, not
+  while an actual migration or seed was being interrupted.
+
+NOT TESTED — Render account/workspace permissions, plan/resource summary,
+  Blueprint validation in Render, provisioning, Docker build on Render, actual
+  provider environment variables/private database route, resource limits and
+  actual default /data/media filesystem ownership in a newly built Docker image.
+  No fresh Docker image was built for this bounded runtime check.
+
+NOT TESTED — public HTTPS URL/TLS, hosted Secure/HttpOnly/SameSite cookies,
+  hosted login/logout/learner/author/upload/browser E2E, actual media loss on
+  Render Free sleep/redeploy, billing/quota behavior or 30-day DB expiration.
+  During local checks the Render connection was unavailable. It subsequently
+  became connected and the user confirmed Tony's workspace; provider planning
+  and provisioning were not yet run at this evidence checkpoint.
+  No paid resource, external deployment or hosting cost was created.

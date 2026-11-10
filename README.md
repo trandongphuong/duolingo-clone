@@ -4,6 +4,8 @@
 
 **Học liệu mẫu chưa kiểm duyệt.** 10 bài/100 mục chỉ để thử phần mềm. Chưa có bản ghi phát âm Mandarin được thẩm định. Nội dung hàng hải công khai không thay thế IMO SMCP tiếng Anh. Xem `IMPLEMENTATION_STATUS.md` và `docs/ACCEPTANCE_REPORT.md` để biết kiểm thử thực tế; chưa được chứng nhận offline trong mạng thật.
 
+**Demo Render Free:** [mở trang đăng nhập](https://hnb-demo-web-xpuz.onrender.com/sign-in). Render xác nhận deployment Live và bootstrap thành công. Tài khoản `demo_admin`; chủ tài khoản xem secret `DEMO_ADMIN_PASSWORD` tại Environment của [web service](https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g). Database demo hết hạn **10/12/2026**; file tải lên chỉ lưu tạm. Kiểm thử trình duyệt công khai từ môi trường cloud bị chặn; xem [bằng chứng triển khai](docs/verification/render-hosting.txt).
+
 ## Chạy phát triển với dữ liệu giả
 
 Cần Node 24, Corepack/pnpm 11.11.0 và PostgreSQL 17. Không cần tài khoản Clerk/Neon/Stripe hay API bên ngoài.
@@ -85,8 +87,11 @@ Production phải được phê duyệt tên miền/chứng chỉ HTTPS nội b�
 
 ## Tài liệu dự án
 
+Demo Internet dùng dữ liệu giả đã được người dùng cho phép và chọn **Render Free**. Xem [hướng dẫn Render](docs/RENDER_DEMO.md). Liên kết tạo Blueprint trong hướng dẫn dành cho instance mới; demo hiện tại dùng URL đăng nhập ở đầu README. Database Free hết hạn sau 30 ngày, media tải lên lưu tạm.
+
 - `SPEC_CHI_TIET.md`, `NGHIEM_THU.md`, `PROMPT_GIAO_VIEC.md`: yêu cầu và tiêu chí gốc.
 - `IMPLEMENTATION_PLAN.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`: kế hoạch, tiến độ và quyết định.
 - `docs/ACCEPTANCE_REPORT.md`: PASS/FAIL/NOT TESTED từng tiêu chí và bằng chứng.
 - `docs/ASSET_LICENSES.md`: nguồn/giấy phép font, logo, ngữ liệu, âm thử nghiệm.
 - `docs/DEPENDENCIES.md`: phụ thuộc và kết quả kiểm tra chuỗi cung ứng.
+- `docs/DEMO_DEPLOYMENT.md`: bản demo Internet dùng dữ liệu giả đã được cho phép; yêu cầu hosting, secrets và bootstrap database riêng.
