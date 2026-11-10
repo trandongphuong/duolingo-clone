@@ -16,6 +16,7 @@ async function main() {
   for (const [from, to] of [
     [".next/standalone", "."], [".next/static", ".next/static"],
     ["public", "public"], ["templates", "templates"], ["drizzle", "drizzle"],
+    ["scripts/render-start.mjs", "render-start.mjs"],
   ]) await fs.cp(path.join(source, from), path.join(staging, to), { recursive: true, verbatimSymlinks: true });
   await fs.copyFile(path.join(source, "LICENSE"), path.join(staging, "LICENSE"));
   await fs.mkdir(path.join(destination, "data/media"), { recursive: true });
@@ -33,6 +34,7 @@ async function main() {
     "db:seed": "node maintenance/seed.cjs",
     "auth:create": "node maintenance/create-user.cjs",
     "demo:bootstrap": "node maintenance/demo-bootstrap.cjs",
+    "demo:render": "node render-start.mjs",
   };
   await fs.writeFile(packagePath, JSON.stringify(pkg, null, 2) + "\n");
   // Defense in depth: traces must not smuggle development secrets/test data.

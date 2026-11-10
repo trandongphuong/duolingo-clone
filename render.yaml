@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+# Explicit Free plans: review the initial Render resource summary before creating.
+# Free media is ephemeral; the synthetic demo database expires after 30 days.
+services:
+  - type: web
+    name: hnb-demo-web
+    runtime: docker
+    plan: free
+    region: singapore
+    repo: https://github.com/trandongphuong/duolingo-clone
+    branch: feat/han-ngu-bien-demo
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: node render-start.mjs
+    autoDeployTrigger: off
+    healthCheckPath: /sign-in
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DEMO_MODE
+        value: "true"
+      - key: DEMO_DATA_POLICY
+        value: SYNTHETIC_ONLY
+      - key: DEMO_MEDIA_STORAGE
+        value: ephemeral
+      - key: SESSION_SECURE
+        value: "true"
+      - key: SESSION_PASSWORD
+        generateValue: true
+      - key: DEMO_ADMIN_USERNAME
+        value: demo_admin
+      - key: DEMO_ADMIN_PASSWORD
+        generateValue: true
+      - key: MEDIA_DIR
+        value: /data/media
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hnb-demo-db
+          property: connectionString
+
+databases:
+  - name: hnb-demo-db
+    databaseName: hnb_demo
+    user: hnb_demo
+    plan: free
+    region: singapore
+    postgresMajorVersion: "17"
+    ipAllowList: []

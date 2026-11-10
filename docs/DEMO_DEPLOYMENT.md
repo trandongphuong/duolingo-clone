@@ -4,13 +4,13 @@ Người dùng đã cho phép triển khai một bản demo có đăng nhập đ
 
 ## Trạng thái và điều kiện triển khai
 
-Chưa có URL demo công khai được xác minh. Kết nối tài khoản hosting Railway đang chờ hoàn tất; chưa tạo dịch vụ, cơ sở dữ liệu hoặc khoản phí. Trước khi tạo tài nguyên phải kiểm tra quyền và chi phí thực tế của tài khoản. Không tự đăng ký gói trả phí hoặc cấp quyền mới. Có thể dùng nhà cung cấp khác nếu đáp ứng cùng kiến trúc và được cấp quyền phù hợp.
+Người dùng đã chọn **Render Free**. Xem [cấu hình và liên kết tạo demo Render](RENDER_DEMO.md). Chưa có URL demo công khai được xác minh; tài khoản Render chưa được kết nối và chưa tạo tài nguyên hoặc khoản phí. Trước khi tạo tài nguyên phải kiểm tra quyền, gói Free và hạn mức thực tế của workspace. Không tự đăng ký gói trả phí hoặc cấp quyền mới.
 
 Môi trường chạy cần:
 
 - Node.js 24, image Docker của repository, một tiến trình web chạy bản build production.
 - Một PostgreSQL mới, riêng cho demo, ban đầu không có bảng trong schema `public`; tên cơ sở dữ liệu chứa `demo`, ví dụ `hnb_demo`. Không trỏ đến dữ liệu LAN, dữ liệu nghiệp vụ hoặc cơ sở dữ liệu dùng chung.
-- Một volume media riêng, bền vững, mount tại `/data/media` và `MEDIA_DIR=/data/media`. Xác nhận quyền ghi của tiến trình web trước khi mở dịch vụ.
+- Thư mục media riêng tại `/data/media`, tiến trình web có quyền ghi. Render Free lưu tạm: file mất khi ngủ/restart/deploy; đây là giới hạn của demo đã được nêu trước khi người dùng chọn Render. Bản LAN hoặc hosting cần lưu bền dùng volume riêng.
 - Reverse proxy HTTPS, origin công khai cố định và health check HTTP `/sign-in`. Không công khai cổng PostgreSQL.
 
 Không dùng Sites/Cloudflare Worker để thay thế runtime Node + PostgreSQL hiện tại. URL preview nội bộ của công cụ QA không phải URL demo dành cho người dùng.
@@ -30,10 +30,10 @@ Không dùng Sites/Cloudflare Worker để thay thế runtime Node + PostgreSQL 
 | `APP_ORIGIN` | Origin HTTPS thực của dịch vụ, không có `/` cuối, path, query, fragment hoặc thông tin đăng nhập |
 | `DEMO_ADMIN_USERNAME` | Tùy chọn, mặc định `demo_admin`; 3–64 ký tự chữ Latin thường, số, `.`, `_`, `-` |
 | `DEMO_ADMIN_PASSWORD` | Bí mật ngẫu nhiên ít nhất 12 ký tự và tối đa 72 byte UTF-8; chỉ cấp qua environment cho bootstrap |
-| `MEDIA_DIR` | `/data/media`, khớp volume riêng |
+| `MEDIA_DIR` | `/data/media`; Render Free lưu tạm, bản cần lưu bền mount volume riêng |
 | `PORT` | Cổng do hosting cấp; tiến trình web phải lắng nghe trên `0.0.0.0` |
 
-Các giá trị `SESSION_PASSWORD`, `DATABASE_URL` và `APP_ORIGIN` dùng cho bootstrap phải khớp tiến trình web. Sau bootstrap có thể gỡ `DEMO_ADMIN_PASSWORD` khỏi environment của dịch vụ web; không thay đổi mật khẩu hiện có khi chạy bootstrap lại. Không đưa secrets vào lệnh shell dưới dạng literal hoặc ảnh chụp màn hình.
+Các giá trị `SESSION_PASSWORD`, `DATABASE_URL` và `APP_ORIGIN` dùng cho bootstrap phải khớp tiến trình web. Render starter lấy origin từ `RENDER_EXTERNAL_URL` nếu chưa đặt `APP_ORIGIN`; bootstrap chạy lại mỗi lần khởi động nên cần giữ `DEMO_ADMIN_PASSWORD` trong secrets của Render. Starter gỡ secret khởi tạo này khỏi environment của child web sau bootstrap. Chạy lại không thay đổi mật khẩu hiện có. Với provider chạy bootstrap một lần độc lập, có thể gỡ secret khỏi cấu hình web sau khi hoàn tất. Không đưa secrets vào lệnh shell dưới dạng literal hoặc ảnh chụp màn hình.
 
 ## Bootstrap một lần, có thể chạy lại an toàn
 
@@ -62,10 +62,10 @@ Migration/seed dùng cơ chế idempotent hiện có; không xóa dữ liệu ho
 ## Trình tự mở demo và xác minh
 
 1. Hoàn tất kết nối hosting được cấp quyền; xem cấu hình tài khoản, quyền tạo tài nguyên và chi phí trước khi tạo dịch vụ.
-2. Cấp PostgreSQL demo riêng và volume media riêng. Đặt tên database có `demo` ngay khi cấp mới; không đổi tên hoặc tái sử dụng database có dữ liệu thật.
+2. Cấp PostgreSQL demo riêng và storage media riêng. Với Render Free, dùng thư mục tạm theo giới hạn đã nêu. Đặt tên database có `demo` ngay khi cấp mới; không đổi tên hoặc tái sử dụng database có dữ liệu thật.
 3. Build/deploy image từ nhánh demo; đặt environment và HTTPS origin thực của dịch vụ.
 4. Chạy bootstrap một lần từ source hoặc image có maintenance bundle. Nếu dùng pre-deploy hook, nó chỉ cần kết nối PostgreSQL và không đọc/ghi media; một số hosting, gồm Railway, không mount volume vào hook và không giữ thay đổi filesystem của hook.
-5. Khởi động web với volume đã mount, kiểm tra `/sign-in`, đăng nhập admin, mở khóa mẫu, học một thẻ, kiểm tra tiến độ, tạo khóa nháp và lưu media giả lập. Khởi động lại dịch vụ và xác nhận database/media còn nguyên.
+5. Khởi động web, kiểm tra `/sign-in`, đăng nhập admin, mở khóa mẫu, học một thẻ, kiểm tra tiến độ, tạo khóa nháp và lưu media giả lập. Khởi động lại dịch vụ và xác nhận database còn nguyên trong thời hạn Free; xác nhận media theo chính sách storage. Render Free có thể mất media khi restart.
 6. Kiểm tra cookie có cờ Secure/HttpOnly/SameSite, route quản trị yêu cầu đăng nhập, không có secrets trong log, dữ liệu mẫu vẫn có nhãn chưa thẩm định. Chạy lại bootstrap và xác nhận tài khoản/mật khẩu, dữ liệu và tiến độ không bị reset.
 7. Chỉ gửi URL HTTPS thật đã mở được qua trình duyệt cho người dùng, kèm cách nhận tài khoản qua kênh phù hợp. Không công bố credential trên repository hoặc tài liệu này.
 

@@ -85,6 +85,8 @@ Production phải được phê duyệt tên miền/chứng chỉ HTTPS nội b�
 
 ## Tài liệu dự án
 
+Demo Internet dùng dữ liệu giả đã được người dùng cho phép và chọn **Render Free**. Xem [hướng dẫn Render](docs/RENDER_DEMO.md) hoặc [mở trang tạo demo](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Ftrandongphuong%2Fduolingo-clone%2Ftree%2Ffeat%2Fhan-ngu-bien-demo). Đây là liên kết thiết lập, chưa phải URL ứng dụng đã chạy; cần tài khoản Render và secret quản trị. Database Free hết hạn sau 30 ngày, media tải lên lưu tạm.
+
 - `SPEC_CHI_TIET.md`, `NGHIEM_THU.md`, `PROMPT_GIAO_VIEC.md`: yêu cầu và tiêu chí gốc.
 - `IMPLEMENTATION_PLAN.md`, `IMPLEMENTATION_STATUS.md`, `DECISIONS.md`: kế hoạch, tiến độ và quyết định.
 - `docs/ACCEPTANCE_REPORT.md`: PASS/FAIL/NOT TESTED từng tiêu chí và bằng chứng.
