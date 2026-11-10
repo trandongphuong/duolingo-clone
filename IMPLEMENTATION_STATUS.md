@@ -50,3 +50,9 @@
 - Bổ sung unique index family/version không rỗng, chặn trùng bài; React Admin thật sự chỉ đọc, bỏ rowEdit/bulkDelete và linkEdit. Gỡ icon/mascot/âm thanh upstream chưa rõ quyền khỏi bản phân phối; logo/font local riêng vẫn giữ giấy phép.
 - Ngăn tracing volume media/.env/work vào standalone; scripts/start dùng storage absolute để không mất media khi rebuild. Build thật không chứa .env/work/.git trong standalone.
 - Đã phục hồi DB giả sang PostgreSQL17Alpine nhỏ hơn; dump/volume cũ bảo toàn. Đang thực hiện Docker source-build tối ưu và E2E cuối. Chưa nghiệm thu cuối.
+
+## 2026-11-10 — Sửa lỗi phát hiện qua E2E
+
+- Wizard E2E thực tế PASS32.4s:10dòng, sửa lỗi Pinyin, upload/play, export, gửi duyệt/admin publish,20câu+mộtcâu sai, reload/replay/logout-login,4kích thước màn hình. Sau sửa2selector của test, suite9/9PASS trên production.
+- Kiểm tra ảnh chụp phát hiện toast chọn khóa báo lỗi dù thao tác thành công: đã đổi action trả đường dẫn tin cậy sau save, client await trong async transition rồi điều hướng. Đã build release PASS và đang chạy lại9case có regression không còn toast sai.
+- Không coi9/9trước sửa toast là bằng chứng cho bản sửa mới; kết quả mới sẽ bổ sung. Docker source-build đã giải quyết network bằng CA+Node env-proxy; đang kiểm tra giới hạn dung lượng trước runtime/offline/restore.

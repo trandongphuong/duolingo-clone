@@ -24,10 +24,13 @@ export const List = ({ courses, activeCourseId }: ListProps) => {
 
     if (id === activeCourseId) return router.push("/learn");
 
-    startTransition(() => {
-      upsertUserProgress(id).catch(() =>
-        toast.error("Chưa chọn được khóa học. Vui lòng thử lại.")
-      );
+    startTransition(async () => {
+      try {
+        const result = await upsertUserProgress(id);
+        router.push(result.nextPath);
+      } catch {
+        toast.error("Chưa chọn được khóa học. Vui lòng thử lại.");
+      }
     });
   };
 

@@ -11,6 +11,7 @@ import { courses, lessons, units, userProgress } from "@/db/schema";
 import { auth, currentUser } from "@/lib/auth";
 
 export async function upsertUserProgress(courseId: number) {
+  if (!Number.isSafeInteger(courseId) || courseId < 1) throw new Error("Mã khóa học không hợp lệ.");
   const { userId } = await auth();
   const user = await currentUser();
   if (!userId || !user) throw new Error("Vui lòng đăng nhập.");
@@ -28,7 +29,7 @@ export async function upsertUserProgress(courseId: number) {
     .onConflictDoUpdate({ target: userProgress.userId, set: profile });
   revalidatePath("/courses");
   revalidatePath("/learn");
-  redirect("/learn");
+  return { nextPath: "/learn" as const };
 }
 
 // Retained for legacy widgets. Practice has no paid limits and never deducts points.
