@@ -1,0 +1,16 @@
+
+Running 9 tests using 1 worker
+
+(node:11909) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/acceptance.spec.ts:171:1 › A02/A03: khách bị chặn ở trang riêng và API quản trị (3.1s)
+  ✓  2 tests/e2e/acceptance.spec.ts:188:1 › C04: biểu mẫu đăng nhập có nhãn và thứ tự focus bàn phím (2.1s)
+  ✓  3 tests/e2e/acceptance.spec.ts:211:3 › A02/A03: đăng nhập, cookie, quyền và thu hồi phiên learner (5.4s)
+  ✓  4 tests/e2e/acceptance.spec.ts:211:3 › A02/A03: đăng nhập, cookie, quyền và thu hồi phiên author (5.4s)
+  ✓  5 tests/e2e/acceptance.spec.ts:211:3 › A02/A03: đăng nhập, cookie, quyền và thu hồi phiên admin (5.3s)
+  ✓  6 tests/e2e/acceptance.spec.ts:252:1 › B02/B03/B06: CSV/XLSX preview, lỗi dòng, nhập lặp, duyệt và phân quyền xuất bản (15.0s)
+  ✓  7 tests/e2e/acceptance.spec.ts:378:1 › B05: tải WAV local, phát bằng trình duyệt, byte-range và từ chối tệp giả (3.7s)
+  ✓  8 tests/e2e/acceptance.spec.ts:432:1 › B01/B04/B07/C02: wizard 10 từ, upload, publish, học, chấm server, resume và mobile (38.8s)
+  ✓  9 tests/e2e/acceptance.spec.ts:684:1 › C01/B07: học liên tục ba bài mẫu và giữ tiến độ sau đăng nhập lại (30.8s)
+
+  9 passed (1.9m)

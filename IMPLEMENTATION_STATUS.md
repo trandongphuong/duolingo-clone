@@ -63,3 +63,11 @@
 - Kiểm15ảnh và overflow ở360/390/768/1440px: Hanzi/Pinyin/nghĩa/audio local hiển thị đúng; bảng từ chỉ cuộn trong khung riêng. Không có request Internet được thử từ trình duyệt.
 - Bằng chứng: `work/evidence/e2e-release.log`, `playwright-release-results.json` và ảnh `author-*`, `lesson-cards-*`, `learner-progress-*`.
 - Source Docker tools đã build thành công từ frozen dependency qua Next build+TypeScript+bundle; app sẽ dùng cùng runtime bằng metadata khác. Đang kiểm chứng Compose/offline/backup, chưa ghi PASS cho các tiêu chí này.
+
+## 2026-11-10 — Docker và offline runtime PASS
+
+- Source Docker tools build PASS: frozeninstall34.8s, Next compile105s, TypeScript/static generation/bundle thành công, imageb3759e… App dùng cùng runtime chỉ đổiCMD; wrapper đã đổi sang một lần sourcebuild để không lặp install khi context thay đổi.
+- Compose mới app+PostgreSQL17Alpine+nginx healthy; DB không publish port, backendInternal=true. Đã sửa ingress healthcheck bị proxy môi trường can thiệp bằng clearproxyenv ở runtime.
+- PASS network thực: app không có defaultIPv4route; publicTCP1.1.1.1:443 trảENETUNREACH.
+- PASS9/9E2E trên Compose trong điều kiện chặn egress, exit0,1.9phút: nhập/publish/âm thanh/quiz/tiến độ/roles/responsive đều hoạt động; browser không thử request ra origin ngoài.
+- Các log/ảnh chỉ chứa dữ liệu giả đã chọn lưu `docs/verification/`; trace,secret,DBdump/media không commit. Đang kiểm chứng backup/restore, recreate và xuất/nạp image. Máy LAN/airgap thật độc lập vẫn NOT TESTED; chưa nghiệm thu cuối.

@@ -2,7 +2,7 @@
 
 Ngày ghi nhận: **2026-11-10**, múi giờ Asia/Bangkok. Nguồn tiêu chí: `NGHIEM_THU.md` phiên bản 1.0.
 
-**Trạng thái: chưa hoàn thành nghiệm thu cuối cùng.** Build và 41 kiểm thử unit/integration đã PASS. E2E production cuối 9/9 đã PASS; các bước Docker/runtime offline/backup/airgap dưới đây đang chờ kết quả; không suy ra PASS từ việc đã viết mã hoặc tài liệu. Đây không phải chứng nhận offline trong mạng LAN thật hay chứng nhận an toàn thông tin của đơn vị.
+**Trạng thái: chưa hoàn thành nghiệm thu cuối cùng.** Build và 41 kiểm thử unit/integration đã PASS. E2E production 9/9 và E2E Docker chặn egress 9/9 đã PASS; backup/restore và transfer đang kiểm chứng, máy airgap/LAN thật độc lập vẫn NOT TESTED; không suy ra PASS từ việc đã viết mã hoặc tài liệu. Đây không phải chứng nhận offline trong mạng LAN thật hay chứng nhận an toàn thông tin của đơn vị.
 
 ## Phiên bản và nguồn kiểm chứng
 
@@ -33,11 +33,12 @@ Không có tài khoản, dữ liệu học viên thật hoặc học liệu hạ
 | E2E production release | **PASS**, 9/9, exit 0, 4,7 phút dưới tải Docker build | `work/evidence/e2e-release.log`, `work/evidence/playwright-release-results.json` |
 | Wizard và responsive thật | **PASS**, tạo10từ → sửa lỗi → upload → lưu → duyệt → học20câu → resume/replay; 360/390/768/1440px | Test B01/B04/B07/C02 trong suite9; ảnh `author-*`, `lesson-cards-*`, `learner-progress-*` |
 | Tools bundle migrate/seed | **PASS** trên PostgreSQL thử nghiệm; migration đã áp dụng được nhận diện, seed lại tạo 0 bản ghi | `work/evidence/bundled-maintenance.log` |
-| Docker app thực, restore và transfer | **NOT TESTED** tại thời điểm báo cáo này | Các bước đang chạy/chẩn đoán, sẽ cập nhật khi có kết quả thực |
+| Docker app thực + E2E chặn egress | **PASS**, source build → Compose healthy → 9/9 E2E, browser external attempts0 | `docs/verification/e2e-offline-compose.log`, `docker-runtime-offline.log`, `runtime-image-proof.log` |
+| Restore và transfer | **NOT TESTED** tại mốc này | Đang kiểm chứng sau khi E2E ngừng ghi dữ liệu |
 
 Hai selector test đã được sửa (alert của Next và label chứa select). Kiểm tra screenshot phát hiện toast chọn khóa báo lỗi sai; server action đã trả đường dẫn sau save, client await rồi điều hướng. Suite release9/9 có regression xác nhận toast sai không còn. Tất cả test trình duyệt chặn origin ngoài và xác nhận không có request Internet được thử.
 
-Các log và screenshot gốc ở `work/` được bỏ qua bởi Git để tránh đưa dữ liệu vận hành vào repository. Báo cáo này giữ kết quả đã quan sát; người nghiệm thu cần chạy lại các lệnh trên bản phát hành mình nhận. Audit 0 advisory không thay thế rà soát bảo mật hoặc chứng minh không tồn tại lỗ hổng chưa công bố.
+Log và ảnh minh chứng đã kiểm tra chỉ chứa dữ liệu giả được lưu tại `docs/verification/`; log thô, trace/cookie/mật khẩu và DB/media trong `work/` vẫn bị bỏ qua bởi Git. Báo cáo này giữ kết quả đã quan sát; người nghiệm thu cần chạy lại các lệnh trên bản phát hành mình nhận. Audit 0 advisory không thay thế rà soát bảo mật hoặc chứng minh không tồn tại lỗ hổng chưa công bố.
 
 ## Đối chiếu từng tiêu chí
 
@@ -48,9 +49,9 @@ Các log và screenshot gốc ở `work/` được bỏ qua bởi Git để trá
 | A01 | Critical | **PASS** | Frozen install, ESLint, TypeScript, 41/41 unit/integration và production build đều exit 0. Các log `*-final` và `frozen-install.log` nêu trên. Lệnh tái lập: `pnpm lint`, `pnpm typecheck`, `TEST_DATABASE_URL="$DATABASE_URL" pnpm test`, `pnpm build`. |
 | A02 | Critical | **PASS** | E2E production đăng nhập/đăng xuất learner/author/admin bằng DB local; cookie httpOnly/SameSite=Lax, cookie cũ bị thu hồi sau logout. `e2e-production.log`, các test `A02/A03` trong `tests/e2e/acceptance.spec.ts`; không dùng Clerk. |
 | A03 | Critical | **PASS** | E2E guest 401, learner/author 403 ở API admin; author publish 403, CSRF khác origin 403. Unit/integration kiểm role, admin cuối cùng, khóa/reset/thu hồi phiên và actor đã bị khóa/hạ quyền không được ghi bằng quyền chụp từ trước. `tests/auth-policy.test.ts`, `tests/users.integration.test.ts`, `tests/import-content.integration.test.ts`, suite 41 PASS. |
-| A04 | Critical | **NOT TESTED** | PostgreSQL riêng đã chạy các integration thật; `pg` thay Neon, Compose không khai báo port DB. Startup toàn bộ Compose production và kiểm xác nhận mạng/cổng trên bộ image cuối còn chờ. Không dùng cổng loopback DB của môi trường phát triển làm bằng chứng cấu hình LAN production. |
+| A04 | Critical | **PASS** | PostgreSQL17Alpine riêng trong Compose; migrate/seed/bootstrap thực và9/9E2E trên app kết nối DB này. Backend Internal=true, service DB không publish port. `compose.yaml`, `compose-health.json`, `docs/verification/e2e-offline-compose.log`. |
 | A05 | Critical | **PASS** | SDK Clerk/Neon/Stripe đã gỡ khỏi dependency/runtime; checkout/webhook/paywall đã bỏ. Học liên tục ba bài/60 câu và giữ điểm sau đăng nhập lại đã PASS trong E2E. Tên cột subscription lịch sử không phải một tích hợp thanh toán đang chạy. |
-| A06 | Critical | **NOT TESTED** | Browser E2E chặn mọi origin ngoài ứng dụng và kiểm không có request Internet. Probe network giả trước đó chứng minh được cách cô lập app sau nginx, nhưng chưa thay cho luồng auth/import/quiz/progress trên container app thật bị chặn egress. Chờ runtime Compose + E2E offline; LAN thật chưa kiểm chứng. |
+| A06 | Critical | **PASS** trong mô phỏng cloud | App thực trên internal backend không có default IPv4 route, public TCP1.1.1.1:443 bịENETUNREACH. Trong điều kiện đó9/9E2E auth/CSV-XLSX/publish/media/quiz/resume đềuPASS; browser external attempts0. `docs/verification/docker-runtime-offline.log`, `e2e-offline-compose.log`. LAN thật độc lập vẫn chưa được chứng nhận. |
 | A07 | Critical | **PASS** | Integration tạo nội dung ngoài bộ mẫu + 137 điểm + attempt/completion, chạy migrate/seed hai lần rồi so sánh nguyên vẹn. Bộ mẫu vẫn 10 bài/100 từ/200 câu/800 lựa chọn; chạy seed lại không tạo thêm. `tests/media-seed.integration.test.ts`, `tests-final.log`. |
 | A08 | Critical | **PASS** | SQL projection của learner không lấy `correct`; server kiểm option thuộc câu, bài/khóa đã publish và khóa đang chọn. PostgreSQL regression: 8 request đúng đồng thời chỉ +10 điểm, replay +0, sai +0, lựa chọn khác câu/bài nháp/khóa chưa chọn bị từ chối. `tests/learning.integration.test.ts`, suite 41 PASS. |
 | B01 | Critical | **PASS** | E2E wizard tạo khóa/chủ đề/bài, dán10dòng, cố ý thiếu Pinyin rồi sửa ô, upload WAV, preview/lưu20câu, export CSV, author gửi duyệt, admin xuất bản, learner học. Suite release9/9 PASS; `tests/e2e/acceptance.spec.ts`, `work/evidence/e2e-release.log`. |
@@ -65,7 +66,7 @@ Các log và screenshot gốc ở `work/` được bỏ qua bởi Git để trá
 | C02 | High | **PASS** | E2E kiểm document không tràn ngang ở360/390/768/1440px cho author, flashcards và tiến độ;15ảnh bằng chứng có Hanzi/Pinyin đúng. Bảng từ cuộn trong khung riêng trên màn nhỏ. Suite release9/9 và `work/evidence/{author,lesson-cards,learner-progress}-*.png`. |
 | C03 | Medium | **PASS** | Unit lịch ôn đúng 1/3/7/14 ngày, trả lời sai reset; PostgreSQL test due-review đồng thời chỉ tăng một bước, không cộng điểm lặp. UI `/review` dùng danh sách đến hạn theo chính user, liên kết luyện bài đã publish. `tests/review.test.ts`, `tests/learning.integration.test.ts`, `db/queries.ts`; không có AI. |
 | C04 | High | **PASS** | E2E form đăng nhập kiểm label và thứ tự focus bàn phím; screenshot `login-keyboard-focus.png`. Các thao tác quiz là button, nội dung Hanzi/Pinyin/VI làm nội dung thay thế âm thanh, form bảng có aria-label, logo trang trí dùng alt rỗng; CSS có focus và reduced-motion. Đây là kiểm tra cơ bản, chưa phải chứng nhận WCAG toàn ứng dụng. |
-| D01 | Critical | **NOT TESTED** | Dockerfile/Compose/healthcheck/volume/nginx/internal backend đã viết; đường đóng gói artifact app/tools nhỏ và migrate/seed bundle từng PASS. Source build cuối và chạy app+DB+ingress production trên clean instance còn đang thực hiện. Không đánh dấu PASS từ probe app giả hoặc build image đơn lẻ. |
+| D01 | Critical | **PASS** | Source Docker tools build frozeninstall+Next+TypeScript+bundle thành công; app là metadata-only derivative cùng runtime. Compose mới app/DB/nginx healthy, volumes bền vững,9/9E2E; không dùng host node_modules lúc runtime. `docs/verification/docker-source-tools-pass.log`, `runtime-image-proof.log`, `docker-runtime-offline.log`, `e2e-offline-compose.log`. |
 | D02 | Critical | **NOT TESTED** | Script export/load kiểm SHA-256 và image ID đã có; từ chối checksum hỏng từng được kiểm. Xuất/nạp bộ image cuối cùng và chạy `--pull never` còn chờ. **Máy airgap độc lập chưa được thử**; ngay cả nếu export/load cùng Docker daemon PASS, kết luận máy airgap độc lập vẫn NOT TESTED. Xem bảng bước con bên dưới. |
 | D03 | Critical | **NOT TESTED** | Script backup DB+media/restore transaction và kiểm archive trước mutation đã có; kiểm traversal/symlink/tar hỏng từng PASS. Chưa có bằng chứng backup rồi restore DB+media thật trên instance thử nghiệm mới và so khớp nội dung cuối. |
 | D04 | High | **PASS** | `.env.example` không chứa secret; `.env*`, `work/`, DB dump/cache không đưa vào Git/image. CLI nhận mật khẩu kín qua stdin, không có admin/admin hay tài khoản mặc định; fixture mật khẩu được tạo ngẫu nhiên, không commit. Auth/admin integration kiểm hash không lộ trong kết quả API. `scripts/create-user.ts`, `.gitignore`, `.dockerignore`, suite 41 PASS. |
@@ -80,9 +81,9 @@ Các log và screenshot gốc ở `work/` được bỏ qua bởi Git để trá
 | Build production trên host | **PASS** | Đã có `build-final.log` |
 | Bundle công cụ migrate/seed từ dependency đã khóa | **PASS** | Đã chạy với DB thử nghiệm; `bundled-maintenance.log` |
 | Đóng gói compact app/tools từ artifact host | **PASS** ở lần thử trước | `docker-package-built.log`; cần đối chiếu lại bộ image cuối với commit/build phát hành |
-| Docker source build toàn bộ cuối | **NOT TESTED** | Build kết thúc exit 0, giữ log/digest; lần trước có ENOSPC và chẩn đoán mạng trong build |
-| Compose app/DB/ingress thực + volumes/healthy | **NOT TESTED** | Clean instance lên được bằng images đã có, không publish DB port |
-| App thực không có public egress + browser auth/import/quiz | **NOT TESTED** | Probe route/egress và toàn luồng E2E cùng chạy trên bộ Compose cuối |
+| Docker source build toàn bộ cuối | **PASS** | `docker-source-tools-pass.log`: frozeninstall → Next build/TypeScript → bundle → image b3759e…; app chỉ đổi CMD từ cùng runtime, wrapper hiện chỉ build source một lần. |
+| Compose app/DB/ingress thực + volumes/healthy | **PASS** | Instance mới, DB không publish port, app/DB/nginx healthy. |
+| App thực không có public egress + browser auth/import/quiz | **PASS** | Route/egress probe và9/9E2E cùng bộ Compose cuối, external browser attempts0. |
 | Export/save bộ image cuối + checksum | **NOT TESTED** | Archive và manifest SHA-256 được tạo/kiểm thành công |
 | Load rồi khởi động không pull trên cùng host | **NOT TESTED** | Kiểm image ID đúng; `docker compose up --no-build --pull never` hoạt động |
 | Nạp và vận hành trên máy airgap độc lập | **NOT TESTED** | Người vận hành thử trên host khác đã chuẩn bị Docker/OS, không Internet |
