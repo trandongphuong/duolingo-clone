@@ -31,3 +31,13 @@
 - Dockerfile/Compose có image digest, nginx ingress, app/DB internal network, volume/healthcheck; script backup/restore/export/load/checksum đã viết.
 - PASS probe network với app giả: HTTP200 qua nginx, app không có default route, public TCP ENETUNREACH. PASS kiểm archive traversal/symlink/corrupt và checksum sai bị từ chối trước mutation.
 - FAIL lần build tools do rootless Docker vfs hết dung lượng trên ổ8GB. Đang tối ưu và dọn đúng cache thử nghiệm; bảo toàn DB test. Chưa ghi PASS cho Docker app thực.
+
+## 2026-11-10 — Checkpoint B/C / biên soạn và học liệu
+
+- Đã triển khai wizard/bảng từ, import CSV/XLSX/TSV, preview bắt buộc, xác nhận có receipt, validation theo dòng, export CSV chống formula injection, sinh câu hỏi hai chiều và quản lý phiên bản.
+- Đã sửa quyền đọc/tái sử dụng media riêng tư và tạo bài trùng mã trong cùng chủ đề. PASS2 integration PostgreSQL bổ sung, scoped lint PASS.
+- Production build PASS (compiled19.9s, TypeScript11.3s,33 static pages), log `work/evidence/build-resume.log`.
+- E2E production lần đầu:8 PASS/1 FAIL do selector test role=alert trùng Next route announcer (đã sửa test). Các mục đã PASS thực tế gồm3vai trò login/logout/cookie revoke, guest/RBAC, keyboard labels, CSV/XLSX preview/duplicate/publish, WAV playback/range và học liên tục3bài/60câu/resume. Wizard đầy đủ đang chờ chạy lại trên build cuối.
+- Audit phụ thuộc phát hiện12 cảnh báo (1critical,6high,4moderate,1low); đang áp dụng override bản vá tương thích, chưa chấp nhận là đã xử lý trước khi audit lại.
+- Runtime Docker compact app/tools đã build thử PASS, maintenance bundle migrate/seed PASS. Chưa chạy Compose app thật/offline E2E/restore; bộ image cũ đang xóa để giải phóng ổ8GB. Không xóa DB/volume.
+- Đã phục hồi môi trường sau ENOSPC bằng dừng các installer và xóa đúng cache/.next có thể tạo lại. Mã nguồn, commit và DB được giữ. Nghiệm thu cuối vẫn chưa hoàn thành.
