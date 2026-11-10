@@ -21,7 +21,7 @@ async function main() {
   await fs.mkdir(path.join(destination, "data/media"), { recursive: true });
   const esbuild = createRequire(require.resolve("tsx/package.json"))("esbuild");
   await esbuild.build({
-    entryPoints: ["scripts/migrate.ts", "scripts/seed.ts", "scripts/create-user.ts"],
+    entryPoints: ["scripts/migrate.ts", "scripts/seed.ts", "scripts/create-user.ts", "scripts/demo-bootstrap.ts"],
     outdir: path.join(staging, "maintenance"), outExtension: { ".js": ".cjs" },
     bundle: true, platform: "node", target: "node24", format: "cjs",
     external: ["pg-native"], sourcemap: false, logLevel: "warning",
@@ -32,6 +32,7 @@ async function main() {
     "db:migrate": "node maintenance/migrate.cjs",
     "db:seed": "node maintenance/seed.cjs",
     "auth:create": "node maintenance/create-user.cjs",
+    "demo:bootstrap": "node maintenance/demo-bootstrap.cjs",
   };
   await fs.writeFile(packagePath, JSON.stringify(pkg, null, 2) + "\n");
   // Defense in depth: traces must not smuggle development secrets/test data.

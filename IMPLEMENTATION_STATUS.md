@@ -82,3 +82,14 @@
 - PASS typecheckrelease vàbash/node syntax lầncuối; Git scan không có .env thật, dump,archive,testaccountsecrets trong trackedfiles. Chỉ.env.example được theo dõi.
 - `docs/ACCEPTANCE_REPORT.md`:26PASS/0FAIL/1NOT TESTED. D02máyairgapđộc lập chưa kiểm chứng; LANthật chưa được chứng nhận. Không tuyên bố hoàn thành nghiệm thu cuối, không merge main, không deploy công khai.
 - Evidence đã lọc chỉdữliệugiả tại `docs/verification/`. Archivebinary,DBdump,media,secrets/trace giữngoàiGit trongwork; scriptscho phép táitạo gói trên máybuild được phép.
+
+## 2026-11-10 — Chuẩn bị demo Internet theo yêu cầu mới
+
+- Người dùng đã cho phép triển khai demo để truy cập trực tiếp. Tạo nhánh `feat/han-ngu-bien-demo` từ `96a4d5e`; dùng dữ liệu giả, database và volume media riêng. Bản LAN tiếp tục được nghiệm thu tại PR #1.
+- Thêm `demo:bootstrap` cho source và maintenance bundle: xác thực HTTPS/cookie/secrets, yêu cầu database demo mới hoặc marker hợp lệ, migrate → seed → tạo admin trong transaction có advisory lock. Chạy lại không reset tài khoản; từ chối nâng quyền hoặc mở khóa tài khoản trùng tên. Không có mật khẩu mặc định hoặc secret trong log.
+- PASS: full lint (`node_modules/.bin/eslint`), full typecheck (`tsc --noEmit --incremental false`), 5/5 guard tests, production Next build + prepare standalone và đóng gói allowlist maintenance bundle. Bundle từ chối cấu hình thiếu cờ demo với exit 1 đúng dự kiến, trước khi kết nối DB.
+- PASS tích hợp maintenance bundle trên PostgreSQL riêng trong container Node 24 hiện có: bootstrap DB mới với 10 bài/100 từ và admin bcrypt cost 12; chạy lại giữ nguyên mật khẩu/tài khoản/nội dung; từ chối trùng tên learner hoặc admin bị khóa; từ chối DB có bảng chưa có marker và giữ nguyên sentinel. Hai database thử riêng và tệp tạm đã được dọn sau kiểm thử.
+- NOT TESTED: bootstrap chế độ source kết nối DB thật. Kết nối từ host tới PostgreSQL trong Docker bridge trả `ECONNREFUSED` trước khi tạo DB; đã kiểm chứng bundle qua tuyến mạng private của app. Đây là giới hạn kiểm thử source-mode, không ghi thành PASS.
+- Hosting: đã tìm và đề xuất Railway, nhưng trạng thái kết nối kiểm tra vẫn chưa cài/kết nối; không có quyền hosting/SSH được cấu hình. Chưa tạo dịch vụ, database hoặc khoản phí. Cần người dùng kết nối tài khoản hosting trước khi có thể cấp tài nguyên và kiểm tra chi phí.
+- NOT TESTED: provisioning hosting, HTTPS/domain thật, volume trên hosting, bootstrap và E2E tại URL công khai; chưa có URL demo đã xác minh. Không coi localhost hoặc preview QA nội bộ là đường dẫn người dùng truy cập được.
+- Bằng chứng chặng demo: `docs/verification/demo-bootstrap.txt`. Chưa build image Docker mới cho thay đổi bootstrap; đã bundle và kiểm chứng runtime command, tiếp tục build/deploy sau khi có quyền hosting.

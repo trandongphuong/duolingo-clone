@@ -9,3 +9,7 @@
 
 - React Admin nâng cao chỉ đọc; các API ghi cũ trả409 sau auth/CSRF. Toàn bộ soạn/sửa/duyệt đi qua content service có khóa bài/phiên bản, tránh đường CRUD cũ làm thay đổi lịch sử hoặc đua với publish.
 - Cho phép học lại/chọn bài đã xuất bản; không khóa trả phí hay ép lộ trình tuần tự. Server vẫn kiểm quyền và trạng thái xuất bản.
+
+- Người dùng đã cho phép triển khai demo Internet có đăng nhập và chỉ dùng dữ liệu giả. Tách thay đổi tại `feat/han-ngu-bien-demo` từ checkpoint LAN `96a4d5e`; database và volume media của demo phải được cấp riêng. Đây là ngoại lệ được người dùng cho phép đối với giới hạn triển khai công khai trong tài liệu gốc, dành riêng cho demo.
+- Chọn kiến trúc hosting Docker/Node 24 + PostgreSQL + volume media để dùng ứng dụng thật. Railway phù hợp nhưng cần kết nối tài khoản và kiểm tra chi phí thực tế trước khi cấp tài nguyên. Chưa cấp tài nguyên hoặc tạo khoản phí; không chuyển ứng dụng sang runtime Worker/D1.
+- Bootstrap demo là lệnh tường minh, không tự chạy khi web khởi động. Yêu cầu HTTPS, cookie Secure, secrets từ environment và database riêng có tên chứa `demo`. Database có bảng nhưng chưa có marker demo bị từ chối trước migration/seed; chạy lại giữ nguyên mật khẩu, quyền và trạng thái tài khoản hiện có.

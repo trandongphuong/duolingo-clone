@@ -90,3 +90,4 @@ Production phải được phê duyệt tên miền/chứng chỉ HTTPS nội b�
 - `docs/ACCEPTANCE_REPORT.md`: PASS/FAIL/NOT TESTED từng tiêu chí và bằng chứng.
 - `docs/ASSET_LICENSES.md`: nguồn/giấy phép font, logo, ngữ liệu, âm thử nghiệm.
 - `docs/DEPENDENCIES.md`: phụ thuộc và kết quả kiểm tra chuỗi cung ứng.
+- `docs/DEMO_DEPLOYMENT.md`: bản demo Internet dùng dữ liệu giả đã được cho phép; yêu cầu hosting, secrets và bootstrap database riêng.

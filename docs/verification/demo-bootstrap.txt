@@ -1,0 +1,58 @@
+Demo bootstrap verification — 2026-11-10
+Branch: feat/han-ngu-bien-demo
+Scope: provider-agnostic synthetic demo preparation; no public deployment.
+
+PASS — node_modules/.bin/tsx --test tests/demo-config.test.ts
+  tests 5; pass 5; fail 0.
+  Explicit demo/data-policy gates; PostgreSQL demo-name and query-override
+  guards; canonical HTTPS origin; secure cookies; session secret length;
+  username normalization; bcrypt UTF-8 password boundaries; sanitized errors.
+
+PASS — node_modules/.bin/eslint lib/demo-config.ts scripts/demo-bootstrap.ts tests/demo-config.test.ts
+  Exit 0, no output.
+
+PASS — node_modules/.bin/tsc --noEmit --pretty false
+  Exit 0, no output after fixing ProcessEnv typing.
+
+PASS — root final checks of the integrated branch.
+  node_modules/.bin/eslint — exit 0.
+  node_modules/.bin/tsc --noEmit --incremental false — exit 0.
+  NEXT_TELEMETRY_DISABLED=1 node_modules/.bin/next build --turbopack
+    followed by node scripts/prepare-standalone.mjs — exit 0.
+    Next compiled successfully in 25.9s; TypeScript 13.9s;
+    static page generation 30/30; no secrets/user data in standalone.
+  node docs/docker/prepare-runtime.cjs work/demo-runtime — exit 0.
+    Allowlisted runtime contains maintenance/demo-bootstrap.cjs and runtime
+    package script demo:bootstrap. node --check of that bundle — exit 0.
+    Missing demo flags rejected by that bundle with expected exit 1.
+  A new full Docker image build was not run in this preparation stage.
+
+PASS — source CLI rejects missing explicit authorization before connecting.
+  Command: env -u DEMO_MODE -u DEMO_DATA_POLICY node --import tsx scripts/demo-bootstrap.ts
+  Expected exit 1; fixed output:
+  Bootstrap demo yêu cầu DEMO_MODE=true và DEMO_DATA_POLICY=SYNTHETIC_ONLY.
+
+PASS — packaged integration in existing Node v24.22.2 app container.
+  An ephemeral verification harness bundled the bootstrap with the existing
+  esbuild installation and passed it to docker exec via stdin. The harness
+  used the container's normal private PostgreSQL route and existing packaged
+  migration/seed children from cwd /app. No new image or container was created.
+  Two unique, newly created hnb_demo_* databases contained only synthetic
+  test data. Both databases and temporary verification files were removed.
+  Existing databases, app/container configuration and mounted media unchanged.
+  Captured sanitized output:
+    PASS packaged bootstrap: Node 24, sequential migrations/seed, marker, 10+ lessons/100+ vocabulary, one bcrypt admin.
+    PASS rerun: password/identity/role/active state/content counts unchanged with a different supplied password.
+    PASS role/state guards: learner and inactive admin refused without reset/promotion/reactivation.
+    PASS unmarked populated DB: refused before migrations/seed; only original synthetic sentinel table remains.
+    PASS log privacy: no password, session secret, connection URL or hash was printed by bootstrap.
+    PASS cleanup: removed only two uniquely named test databases and temporary verification files; existing databases/container configuration unchanged.
+
+NOT TESTED — source-mode migration/seed against PostgreSQL from the host.
+  Host-to-Docker-private-bridge PostgreSQL connection returned ECONNREFUSED
+  before any test database was created. Packaged PostgreSQL integration above
+  covers the deployed runtime; no port/network/container changes were made.
+
+NOT TESTED — actual hosting provisioning, public HTTPS URL, persistent hosted
+  media volume, hosted login and end-to-end smoke tests. Hosting account
+  connection has not been supplied; no external resources or costs created.

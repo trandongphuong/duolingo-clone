@@ -17,6 +17,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
     "auth:create": "tsx scripts/create-user.ts",
+    "demo:bootstrap": "tsx scripts/demo-bootstrap.ts",
     "db:generate": "drizzle-kit generate",
     "postbuild": "node scripts/prepare-standalone.mjs"
   },
