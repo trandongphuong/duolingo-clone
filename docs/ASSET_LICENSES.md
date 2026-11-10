@@ -1,0 +1,10 @@
+# Tài nguyên và giấy phép
+
+- Mã Lingo gốc vẫn giữ LICENSE MIT và thông báo bản quyền upstream. Hình/mascot upstream không được coi là đã có quyền thương hiệu Duolingo; giao diện Hán ngữ biển dùng logo riêng.
+- `public/han-ngu-bien.svg`: logo sách và sóng do dự án vẽ mới bằng SVG, không sao chép logo Duolingo/Memrise. Phát hành cùng giấy phép MIT của repository.
+- `data/sample-course.ts`, `data/vocabulary_sample_100.csv`: ngữ liệu mẫu phổ thông do dự án biên soạn cho thử nghiệm phần mềm, cùng giấy phép MIT. **DỮ LIỆU MẪU CHƯA KIỂM DUYỆT**; cần chuyên gia kiểm tra chữ, Pinyin, nghĩa trước khi dùng đào tạo. Không phải tài liệu nghiệp vụ hay chuẩn thay thế IMO SMCP tiếng Anh.
+- `data/test-tone.wav`: sóng sin 440 Hz, mono PCM 16-bit/16 kHz, 0,25 giây, tạo bằng công thức toán học trong quá trình phát triển; không có bản ghi giọng nói, người thật hoặc tác phẩm bên ngoài. Cùng giấy phép MIT. Chỉ để kiểm tra upload/play, **không phải âm thanh phát âm tiếng Trung**. Không gắn vào mục từ để tránh hiểu sai.
+- `public/fonts/noto-sans-latin.woff2`: Noto Sans Regular, chuyển nguyên bộ glyph sang WOFF2 từ `/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf` của gói Debian `fonts-noto-core`. Giấy phép SIL Open Font License 1.1, thông báo đầy đủ trong `public/fonts/COPYRIGHT-NotoSans.txt`. Giữ hỗ trợ Latin/Vietnamese/Pinyin.
+- `public/fonts/noto-sans-sc.woff2`: Noto Sans SC Regular của dự án Noto, chuyển nguyên bộ Unicode glyph từ `https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf` sang WOFF2; hỗ trợ chữ giản thể ngoài bộ dữ liệu mẫu. Giấy phép SIL OFL 1.1 trong `public/fonts/OFL-NotoSansSC.txt`, thông báo tác giả trong `public/fonts/COPYRIGHT-NotoSansSC.txt`. SHA-256 tệp OTF nguồn: `faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9`. Tải chỉ ở giai đoạn phát triển; runtime phục vụ tệp local. Mã SHA-256 trong `public/fonts/SHA256SUMS`.
+
+Chưa có âm thanh Mandarin được chuyên gia thẩm định hoặc giấy phép bản ghi giọng nói trong bộ mẫu. UI phải báo thiếu âm thanh và dùng nội dung chữ thay thế. Tệp người dùng upload cần người quản lý xác nhận quyền sử dụng trước khi xuất bản.

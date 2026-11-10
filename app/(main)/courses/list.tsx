@@ -25,18 +25,22 @@ export const List = ({ courses, activeCourseId }: ListProps) => {
     if (id === activeCourseId) return router.push("/learn");
 
     startTransition(() => {
-      upsertUserProgress(id).catch(() => toast.error("Something went wrong."));
+      upsertUserProgress(id).catch(() =>
+        toast.error("Chưa chọn được khóa học. Vui lòng thử lại.")
+      );
     });
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 pt-6 lg:grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
+    <div className="grid grid-cols-1 gap-4 pt-3 sm:grid-cols-2 lg:grid-cols-3">
       {courses.map((course) => (
         <Card
           key={course.id}
           id={course.id}
           title={course.title}
           imageSrc={course.imageSrc}
+          description={course.description}
+          sampleUnreviewed={course.sampleUnreviewed}
           onClick={onClick}
           disabled={pending}
           isActive={course.id === activeCourseId}

@@ -1,60 +1,10 @@
 import { eq } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
-
 import db from "@/db/drizzle";
 import { units } from "@/db/schema";
-import { getIsAdmin } from "@/lib/admin";
-
-export const GET = async (
-  _req: NextRequest,
-  { params }: { params: Promise<{ unitId: string }> }
-) => {
-  const { unitId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const data = await db.query.units.findFirst({
-    where: eq(units.id, Number(unitId)),
-  });
-
-  return NextResponse.json(data);
-};
-
-export const PUT = async (
-  req: NextRequest,
-  { params }: { params: Promise<{ unitId: string }> }
-) => {
-  const { unitId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const body = (await req.json()) as typeof units.$inferSelect;
-  const data = await db
-    .update(units)
-    .set({
-      ...body,
-    })
-    .where(eq(units.id, Number(unitId)))
-    .returning();
-
-  return NextResponse.json(data[0]);
-};
-
-export const DELETE = async (
-  _req: NextRequest,
-  { params }: { params: Promise<{ unitId: string }> }
-) => {
-  const { unitId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const data = await db
-    .delete(units)
-    .where(eq(units.id, Number(unitId)))
-    .returning();
-
-  return NextResponse.json(data[0]);
-};
+import { adminGuard, apiError, positiveId, advancedReadOnly } from "@/lib/admin-api";
+type Context={params:Promise<{unitId:string}>};
+export async function GET(request:Request,context:Context) {
+ try {await adminGuard(request); const id=positiveId((await context.params).unitId); const [record]=await db.select().from(units).where(eq(units.id,id)); return record?Response.json(record):Response.json({error:"Không tìm thấy."},{status:404});}catch(error){return apiError(error);}
+}
+export const PUT=advancedReadOnly;
+export const DELETE=advancedReadOnly;

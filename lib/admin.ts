@@ -1,14 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@/lib/auth";
 
-export const getIsAdmin = async () => {
-  const { userId } = await auth();
-
-  if (!userId) return false;
-
-  const adminIds =
-    process.env.CLERK_ADMIN_IDS?.split(",")
-      .map((id) => id.trim())
-      .filter(Boolean) ?? [];
-
-  return adminIds.includes(userId);
-};
+export const getIsAdmin = async () => (await currentUser())?.role === "admin";

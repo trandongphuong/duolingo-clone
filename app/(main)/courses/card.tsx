@@ -1,50 +1,56 @@
-import { Check } from "lucide-react";
 import Image from "next/image";
-
-import { cn } from "@/lib/utils";
 
 type CardProps = {
   title: string;
   id: number;
   imageSrc: string;
+  description?: string;
+  sampleUnreviewed?: boolean;
   onClick: (id: number) => void;
   disabled?: boolean;
   isActive?: boolean;
 };
-
-export const Card = ({
+export function Card({
   title,
   id,
   imageSrc,
+  description,
+  sampleUnreviewed,
   onClick,
   disabled,
   isActive,
-}: CardProps) => {
+}: CardProps) {
   return (
-    <div
+    <button
+      type="button"
+      disabled={disabled}
       onClick={() => onClick(id)}
-      className={cn(
-        "flex h-full min-h-[217px] min-w-[200px] cursor-pointer flex-col items-center justify-between rounded-xl border-2 border-b-[4px] p-3 pb-6 hover:bg-black/5 active:border-b-2",
-        disabled && "pointer-events-none opacity-50"
-      )}
+      aria-pressed={isActive}
+      className={`flex min-h-56 min-w-0 flex-col items-start gap-4 rounded-2xl border-2 p-5 text-left hover:border-sky-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700 disabled:opacity-50 ${isActive ? "border-sky-700 bg-sky-50" : "border-slate-200 bg-white"}`}
     >
-      <div className="flex min-h-[24px] w-full items-center justify-end">
-        {isActive && (
-          <div className="flex items-center justify-center rounded-md bg-green-600 p-1.5">
-            <Check className="h-4 w-4 stroke-[4] text-white" />
-          </div>
-        )}
-      </div>
-
-      <Image
-        src={imageSrc}
-        alt={title}
-        height={70}
-        width={93.33}
-        className="rounded-lg border object-cover drop-shadow-md"
-      />
-
-      <p className="mt-3 text-center font-bold text-neutral-700">{title}</p>
-    </div>
+      {imageSrc && (
+        <Image
+          src={imageSrc}
+          alt=""
+          width={64}
+          height={64}
+          className="h-16 w-16 rounded-lg object-cover"
+        />
+      )}
+      <span className="break-words text-lg font-bold text-slate-900">
+        {title}
+      </span>
+      {description && (
+        <span className="text-sm text-slate-600">{description}</span>
+      )}
+      {sampleUnreviewed && (
+        <span className="rounded bg-amber-50 px-2 py-1 text-xs font-medium text-amber-950">
+          Mẫu chưa kiểm duyệt
+        </span>
+      )}
+      <span className="mt-auto font-semibold text-sky-800">
+        {isActive ? "Tiếp tục học →" : "Chọn khóa học →"}
+      </span>
+    </button>
   );
-};
+}

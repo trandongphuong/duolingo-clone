@@ -1,60 +1,10 @@
 import { eq } from "drizzle-orm";
-import { NextResponse, type NextRequest } from "next/server";
-
 import db from "@/db/drizzle";
 import { challenges } from "@/db/schema";
-import { getIsAdmin } from "@/lib/admin";
-
-export const GET = async (
-  _req: NextRequest,
-  { params }: { params: Promise<{ challengeId: string }> }
-) => {
-  const { challengeId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const data = await db.query.challenges.findFirst({
-    where: eq(challenges.id, Number(challengeId)),
-  });
-
-  return NextResponse.json(data);
-};
-
-export const PUT = async (
-  req: NextRequest,
-  { params }: { params: Promise<{ challengeId: string }> }
-) => {
-  const { challengeId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const body = (await req.json()) as typeof challenges.$inferSelect;
-  const data = await db
-    .update(challenges)
-    .set({
-      ...body,
-    })
-    .where(eq(challenges.id, Number(challengeId)))
-    .returning();
-
-  return NextResponse.json(data[0]);
-};
-
-export const DELETE = async (
-  _req: NextRequest,
-  { params }: { params: Promise<{ challengeId: string }> }
-) => {
-  const { challengeId } = await params;
-
-  const isAdmin = await getIsAdmin();
-  if (!isAdmin) return new NextResponse("Unauthorized.", { status: 401 });
-
-  const data = await db
-    .delete(challenges)
-    .where(eq(challenges.id, Number(challengeId)))
-    .returning();
-
-  return NextResponse.json(data[0]);
-};
+import { adminGuard, apiError, positiveId, advancedReadOnly } from "@/lib/admin-api";
+type Context={params:Promise<{challengeId:string}>};
+export async function GET(request:Request,context:Context) {
+ try {await adminGuard(request); const id=positiveId((await context.params).challengeId); const [record]=await db.select().from(challenges).where(eq(challenges.id,id)); return record?Response.json(record):Response.json({error:"Không tìm thấy."},{status:404});}catch(error){return apiError(error);}
+}
+export const PUT=advancedReadOnly;
+export const DELETE=advancedReadOnly;

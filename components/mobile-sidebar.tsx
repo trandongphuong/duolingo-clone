@@ -7,8 +7,8 @@ import { Sidebar } from "./sidebar";
 export const MobileSidebar = () => {
   return (
     <Sheet>
-      <SheetTrigger>
-        <Menu className="text-white" />
+      <SheetTrigger aria-label="Mở điều hướng">
+        <Menu className="text-white" aria-hidden="true" />
       </SheetTrigger>
 
       <SheetContent className="z-[100] p-0" side="left">

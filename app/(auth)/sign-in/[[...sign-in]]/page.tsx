@@ -1,7 +1,12 @@
-import { SignIn } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
-const SignInPage = () => {
-  return <SignIn />;
+import { currentUser } from "@/lib/auth";
+
+import { LoginForm } from "../login-form";
+
+const SignInPage = async () => {
+  if (await currentUser()) redirect("/learn");
+  return <LoginForm />;
 };
 
 export default SignInPage;

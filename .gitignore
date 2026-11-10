@@ -40,3 +40,8 @@ next-env.d.ts
 # testing tools
 /ngrok
 /stripe
+
+work/
+playwright-report/
+test-results/
+*.tsbuildinfo
