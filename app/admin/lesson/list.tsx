@@ -9,10 +9,10 @@ import {
 export const LessonList = () => {
   return (
     <List>
-      <Datagrid rowClick="edit">
+      <Datagrid rowClick={false} bulkActionButtons={false}>
         <NumberField source="id" />
         <TextField source="title" />
-        <ReferenceField source="unitId" reference="units" />
+        <ReferenceField link={false} source="unitId" reference="units" />
         <NumberField source="order" />
       </Datagrid>
     </List>

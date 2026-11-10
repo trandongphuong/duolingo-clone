@@ -41,15 +41,13 @@ test(
       (await db.select().from(sessions).where(eq(sessions.userId, userId)))
         .length;
     try {
-      await db
-        .insert(localUsers)
-        .values({
-          id: adminId,
-          username: `account-admin-${suffix}`,
-          displayName: "Admin kiểm thử",
-          passwordHash: await hashPassword(originalPassword),
-          role: "admin",
-        });
+      await db.insert(localUsers).values({
+        id: adminId,
+        username: `account-admin-${suffix}`,
+        displayName: "Admin kiểm thử",
+        passwordHash: await hashPassword(originalPassword),
+        role: "admin",
+      });
       const learner = await createUser(admin, {
         username: `account-learner-${suffix}`,
         displayName: "Học viên kiểm thử",
@@ -208,6 +206,72 @@ test(
       assert.ok(
         unchanged,
         "self-lock rejection is enforced by transactional business layer"
+      );
+
+      // A request may capture an admin identity before parsing its body or
+      // hashing a password. Revocation must still be checked at the write.
+      const secondAdmin = await createUser(admin, {
+        username: `account-captured-admin-${suffix}`,
+        displayName: "Admin bị thu hồi quyền",
+        password: originalPassword,
+        role: "admin",
+      });
+      createdIds.push(secondAdmin.id);
+      const capturedActor = { id: secondAdmin.id, role: "admin" as const };
+      const forbiddenCreate = (username: string) =>
+        createUser(capturedActor, {
+          username,
+          displayName: "Không được tạo",
+          password: originalPassword,
+          role: "admin",
+        }).then((created) => {
+          // Also clean up a row if this assertion catches a regression.
+          createdIds.push(created.id);
+          return created;
+        });
+      await updateUser(admin, secondAdmin.id, {
+        action: "update",
+        active: false,
+      });
+      await assert.rejects(
+        forbiddenCreate(`disabled-actor-created-${suffix}`),
+        { status: 403 },
+        "a disabled captured admin cannot create accounts"
+      );
+      await assert.rejects(
+        updateUser(capturedActor, adminId, {
+          action: "resetPassword",
+          password: resetPassword,
+        }),
+        { status: 403 },
+        "a disabled captured admin cannot reset another account"
+      );
+      await updateUser(admin, secondAdmin.id, {
+        action: "update",
+        active: true,
+        role: "author",
+      });
+      await assert.rejects(
+        forbiddenCreate(`demoted-actor-created-${suffix}`),
+        { status: 403 },
+        "an active but demoted captured admin cannot create accounts"
+      );
+      await assert.rejects(
+        updateUser(capturedActor, learner.id, {
+          action: "update",
+          role: "admin",
+        }),
+        { status: 403 },
+        "an active but demoted captured admin cannot grant admin rights"
+      );
+      const [protectedAdmin] = await db
+        .select({ passwordHash: localUsers.passwordHash })
+        .from(localUsers)
+        .where(eq(localUsers.id, adminId));
+      assert.equal(
+        await verifyPassword(originalPassword, protectedAdmin.passwordHash),
+        true,
+        "a revoked actor cannot change an existing admin password"
       );
     } finally {
       await db

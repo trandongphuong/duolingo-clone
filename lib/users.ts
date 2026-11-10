@@ -59,6 +59,28 @@ const publicUserColumns = {
   updatedAt: localUsers.updatedAt,
 };
 
+type UserTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+async function lockAdminActor(tx: UserTransaction, actor: UserActor) {
+  // All account administration takes this lock before locking any user row.
+  // An actor captured before body parsing/password hashing may since have been
+  // disabled or demoted; request-time authentication alone is insufficient.
+  await tx.execute(sql`select pg_advisory_xact_lock(748201)`);
+  const [current] = await tx
+    .select({ id: localUsers.id })
+    .from(localUsers)
+    .where(
+      and(
+        eq(localUsers.id, actor.id),
+        eq(localUsers.active, true),
+        eq(localUsers.role, "admin")
+      )
+    )
+    .for("share");
+  if (!current)
+    throw new UserManagementError("Không còn quyền quản trị tài khoản.", 403);
+}
+
 export const listUsers = async (actor: UserActor) => {
   requireAdminActor(actor);
   return db
@@ -79,18 +101,23 @@ export const createUser = async (actor: UserActor, input: unknown) => {
   const data = createUserSchema.parse(input);
   const username = normalizeUsername(data.username);
   const passwordHash = await hashPassword(data.password);
-  const [created] = await db
-    .insert(localUsers)
-    .values({
-      id: randomUUID(),
-      username,
-      displayName: data.displayName,
-      passwordHash,
-      role: data.role,
-    })
-    .onConflictDoNothing({ target: localUsers.username })
-    .returning(publicUserColumns);
-  if (!created) throw new UserManagementError("Tên đăng nhập đã tồn tại.", 409);
+  const created = await db.transaction(async (tx) => {
+    await lockAdminActor(tx, actor);
+    const [result] = await tx
+      .insert(localUsers)
+      .values({
+        id: randomUUID(),
+        username,
+        displayName: data.displayName,
+        passwordHash,
+        role: data.role,
+      })
+      .onConflictDoNothing({ target: localUsers.username })
+      .returning(publicUserColumns);
+    if (!result)
+      throw new UserManagementError("Tên đăng nhập đã tồn tại.", 409);
+    return result;
+  });
   console.info("account.created", {
     actor: actor.id,
     userId: created.id,
@@ -111,8 +138,8 @@ export const updateUser = async (
       ? await hashPassword(data.password)
       : undefined;
   const updated = await db.transaction(async (tx) => {
-    // Serializes role changes so concurrent requests cannot disable all admins.
-    await tx.execute(sql`select pg_advisory_xact_lock(748201)`);
+    // Revalidate the actor under the same lock that serializes role changes.
+    await lockAdminActor(tx, actor);
     const [target] = await tx
       .select()
       .from(localUsers)

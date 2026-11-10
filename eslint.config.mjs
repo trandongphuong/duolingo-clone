@@ -13,8 +13,12 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "off",
     },
   },
+  { files: ["docs/docker/*.cjs"], rules: { "@typescript-eslint/no-require-imports": "off" } },
   globalIgnores([
     "node_modules/**",
+    "work/**",
+    "test-results/**",
+    "playwright-report/**",
     ".next/**",
     "out/**",
     "build/**",

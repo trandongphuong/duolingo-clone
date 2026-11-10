@@ -8,3 +8,5 @@
 - `public/fonts/noto-sans-sc.woff2`: Noto Sans SC Regular của dự án Noto, chuyển nguyên bộ Unicode glyph từ `https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/SubsetOTF/SC/NotoSansSC-Regular.otf` sang WOFF2; hỗ trợ chữ giản thể ngoài bộ dữ liệu mẫu. Giấy phép SIL OFL 1.1 trong `public/fonts/OFL-NotoSansSC.txt`, thông báo tác giả trong `public/fonts/COPYRIGHT-NotoSansSC.txt`. SHA-256 tệp OTF nguồn: `faa6c9df652116dde789d351359f3d7e5d2285a2b2a1f04a2d7244df706d5ea9`. Tải chỉ ở giai đoạn phát triển; runtime phục vụ tệp local. Mã SHA-256 trong `public/fonts/SHA256SUMS`.
 
 Chưa có âm thanh Mandarin được chuyên gia thẩm định hoặc giấy phép bản ghi giọng nói trong bộ mẫu. UI phải báo thiếu âm thanh và dùng nội dung chữ thay thế. Tệp người dùng upload cần người quản lý xác nhận quyền sử dụng trước khi xuất bản.
+
+Các icon tự động app/apple-icon.png, icon1.png, icon2.png và favicon.ico upstream đã gỡ; app/icon.svg dùng biểu trưng Hán ngữ biển nguyên bản. Bộ hình/mascot/âm thanh legacy trong public đã gỡ khỏi bản phân phối để không dựa vào quyền thương hiệu hoặc bản ghi chưa xác định. Mã nguồn MIT/upstream attribution vẫn giữ.

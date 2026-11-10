@@ -10,7 +10,7 @@ import {
 export const ChallengeList = () => {
   return (
     <List>
-      <Datagrid rowClick="edit">
+      <Datagrid rowClick={false} bulkActionButtons={false}>
         <NumberField source="id" />
         <TextField source="question" />
         <SelectField
@@ -26,7 +26,7 @@ export const ChallengeList = () => {
             },
           ]}
         />
-        <ReferenceField source="lessonId" reference="lessons" />
+        <ReferenceField link={false} source="lessonId" reference="lessons" />
         <NumberField source="order" />
       </Datagrid>
     </List>

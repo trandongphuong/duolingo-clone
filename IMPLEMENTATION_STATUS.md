@@ -41,3 +41,12 @@
 - Audit phụ thuộc phát hiện12 cảnh báo (1critical,6high,4moderate,1low); đang áp dụng override bản vá tương thích, chưa chấp nhận là đã xử lý trước khi audit lại.
 - Runtime Docker compact app/tools đã build thử PASS, maintenance bundle migrate/seed PASS. Chưa chạy Compose app thật/offline E2E/restore; bộ image cũ đang xóa để giải phóng ổ8GB. Không xóa DB/volume.
 - Đã phục hồi môi trường sau ENOSPC bằng dừng các installer và xóa đúng cache/.next có thể tạo lại. Mã nguồn, commit và DB được giữ. Nghiệm thu cuối vẫn chưa hoàn thành.
+
+## 2026-11-10 — Hardening và kiểm thử hồi quy
+
+- PASS cài phụ thuộc frozen/offline sau cập nhật lockfile; PASS build production cuối, typecheck. 41/41 unit+integration PASS,0skip (`TEST_DATABASE_URL="$DATABASE_URL" node_modules/.bin/tsx --test tests/*.test.ts`, exit0,58.0s).
+- Đã vá phụ thuộc gián tiếp qua override tương thích: DOMPurify3.4.17, brace-expansion1.1.21, decode-uri-component0.5.1, postcss-selector-parser6.1.5 và UUID11.1.1 cho ExcelJS. `pnpm audit --prod --json` PASS exit0:0vulnerabilities/545dependencies.
+- Kiểm lại actor active/admin bên trong transaction quản trị, chặn request đang chờ sau khi actor bị khóa/hạ quyền. Regression PostgreSQL đã PASS trong suite41.
+- Bổ sung unique index family/version không rỗng, chặn trùng bài; React Admin thật sự chỉ đọc, bỏ rowEdit/bulkDelete và linkEdit. Gỡ icon/mascot/âm thanh upstream chưa rõ quyền khỏi bản phân phối; logo/font local riêng vẫn giữ giấy phép.
+- Ngăn tracing volume media/.env/work vào standalone; scripts/start dùng storage absolute để không mất media khi rebuild. Build thật không chứa .env/work/.git trong standalone.
+- Đã phục hồi DB giả sang PostgreSQL17Alpine nhỏ hơn; dump/volume cũ bảo toàn. Đang thực hiện Docker source-build tối ưu và E2E cuối. Chưa nghiệm thu cuối.

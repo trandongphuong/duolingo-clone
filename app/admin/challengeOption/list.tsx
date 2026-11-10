@@ -10,11 +10,15 @@ import {
 export const ChallengeOptionsList = () => {
   return (
     <List>
-      <Datagrid rowClick="edit">
+      <Datagrid rowClick={false} bulkActionButtons={false}>
         <NumberField source="id" />
         <TextField source="text" />
         <BooleanField source="correct" />
-        <ReferenceField source="challengeId" reference="challenges" />
+        <ReferenceField
+          link={false}
+          source="challengeId"
+          reference="challenges"
+        />
         <TextField source="imageSrc" />
         <TextField source="audioSrc" />
       </Datagrid>
