@@ -1,0 +1,3 @@
+PASS admin restored report: learner 800 points, 4 completed lessons across courses; published media reference exists.
+PASS learner restored browser: 800 points, 3/10 active-course lessons; WAV fetched (8044 bytes) and played (0.25s).
+PASS logout revocation and browser external request attempts=0. No content/progress mutations performed.

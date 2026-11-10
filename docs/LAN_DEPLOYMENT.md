@@ -29,13 +29,13 @@ scripts/docker-package-built.sh
 scripts/offline-export.sh /duong-dan-duoc-phep/han-ngu-bien-images.tar.gz
 ```
 
-`docker-package-built.sh` chỉ nhận build production thành công, chuẩn bị artifact theo danh sách cho phép, giữ symlink dependency tương đối và kiểm không chứa `.env`, `.git` hay thư mục `work`. Công cụ migrate/seed/bootstrap được bundle thành CJS bằng esbuild từ dependency đã khóa; image không cần `tsx`, `pnpm install` hoặc cây development dependencies lúc runtime. App và tools dùng chung các layer nhỏ, khác lệnh khởi động. Đường fallback cũng nạp PostgreSQL/nginx theo digest cố định trước khi export; không phụ thuộc image có sẵn ngẫu nhiên trên host. Giữ commit nguồn và log build cùng bản phát hành; không trộn artifact từ commit khác. Đây là cách build tương đương được phép, không phải thao tác build trên máy airgap.
+`docker-package-built.sh` chỉ nhận build production thành công, chuẩn bị artifact theo danh sách cho phép, giữ symlink dependency tương đối và kiểm không chứa `.env`, `.git` hay thư mục `work`. Công cụ migrate/seed/bootstrap được bundle thành CJS bằng esbuild từ dependency đã khóa; image không cần `tsx`, `pnpm install` hoặc cây development dependencies lúc runtime. App và tools dùng chung các layer nhỏ, khác lệnh khởi động. Wrapper chỉ build nguồn một lần, rồi tạo image còn lại bằng thay đổi metadata CMD, tránh chạy lại cài dependency khi tài liệu được cập nhật trong lúc build. Đường fallback cũng nạp PostgreSQL/nginx theo digest cố định trước khi export; không phụ thuộc image có sẵn ngẫu nhiên trên host. Giữ commit nguồn và log build cùng bản phát hành; không trộn artifact từ commit khác. Đây là cách build tương đương được phép, không phải thao tác build trên máy airgap.
 
 Trong managed Codex Cloud, script tự dùng `$CODEX_PROXY_CERT` dưới dạng BuildKit secret khi có; CA/proxy của phiên không được nhúng vào runtime image. Không vô hiệu hóa kiểm tra TLS. Nếu dùng môi trường proxy khác, cấu hình Docker/CA theo quy định của môi trường đó trước khi build.
 
 Có thể dùng đuôi `.tar.gz`/`.tgz` để export nén theo luồng, không tạo bản tar trung gian lớn; `docker load` tự giải nén. Với `.tar`, export không nén.
 
-Gói bàn giao gồm ba file `han-ngu-bien-images.tar`, `.tar.images`, `.tar.sha256`, cùng `compose.yaml`, `.env.example`, thư mục `scripts/`, `docs/docker/nginx.conf`, tài liệu vận hành và commit nguồn. `.images` ghi image ID chính xác; `.sha256` bảo vệ cả archive và manifest. Checksum phát hiện lỗi truyền; chỉ nhận gói từ nguồn build đáng tin cậy, checksum không tự chứng minh danh tính bên phát hành. Nếu đổi `HANNGU_IMAGE`, `HANNGU_TOOLS_IMAGE`, `POSTGRES_IMAGE`, `NGINX_IMAGE`, đặt cùng giá trị biến môi trường khi build, export và trên máy LAN. Không ghi đè tag image của bản phát hành cũ.
+Gói bàn giao gồm ba file `han-ngu-bien-images.tar.gz`, `.tar.gz.images`, `.tar.gz.sha256`, cùng `compose.yaml`, `.env.example`, thư mục `scripts/`, `docs/docker/nginx.conf`, tài liệu vận hành và commit nguồn. `.images` ghi image ID chính xác; `.sha256` bảo vệ cả archive và manifest. Checksum phát hiện lỗi truyền; chỉ nhận gói từ nguồn build đáng tin cậy, checksum không tự chứng minh danh tính bên phát hành. Nếu đổi `HANNGU_IMAGE`, `HANNGU_TOOLS_IMAGE`, `POSTGRES_IMAGE`, `NGINX_IMAGE`, đặt cùng giá trị biến môi trường khi build, export và trên máy LAN. Không ghi đè tag image của bản phát hành cũ.
 
 ## 2. Cấu hình riêng trên máy LAN
 
@@ -57,7 +57,7 @@ docker compose up -d --no-build --pull never db
 docker compose run --rm -T tools npm run db:migrate
 ```
 
-Migration là bước vận hành rõ ràng, không chạy tự động khi app khởi động. Không chạy script seed phá dữ liệu upstream. Tạo admin bằng CLI, mật khẩu không xuất hiện trên command line:
+Migration là bước vận hành rõ ràng, không chạy tự động khi app khởi động. Script restore chờ PostgreSQL sẵn sàng trước khi phục hồi để tránh chạy trong lúc initdb trên volume mới. Không chạy script seed phá dữ liệu upstream. Tạo admin bằng CLI, mật khẩu không xuất hiện trên command line:
 
 ```bash
 read -rsp 'Mật khẩu admin mới: ' bootstrap_password
@@ -123,3 +123,13 @@ Kiểm số khóa/bài/mục từ/tài khoản, đăng nhập, điểm/tiến đ
 - Trên host airgap sạch, nạp archive+manifest+checksum rồi chạy `docker compose up --no-build --pull never`; nếu host vẫn cần registry/build/package download thì chưa đạt D02.
 
 **Chưa được chứng nhận offline trong mạng LAN thật cho đến khi người vận hành chạy lại kịch bản này trên hạ tầng được phê duyệt.** Một lần test container trên cloud không chứng nhận toàn bộ bộ cài OS, máy khác kiến trúc CPU, thiết bị âm thanh hay chính sách mạng của đơn vị.
+
+## Kết quả kiểm thử managed cloud ngày 2026-11-10
+
+- Source tools image: cài dependency frozen, production build và bundle maintenance PASS; app dùng đúng filesystem đó với CMD `node server.js`. Lần build app dư thừa ban đầu bị ENOSPC; wrapper đã đổi sang một source build + derivative metadata, helper đã chạy thực tế PASS.
+- Compose mới + PostgreSQL 17 Alpine + volume + ingress: PASS. Tài khoản ba vai trò, nhập/publish/học/media/resume và kiểm browser chỉ cùng origin: 9 E2E PASS khi app không có default route; TCP ra Internet bị ENETUNREACH.
+- Recreate app (cố ý đổi IP, giữ nginx), recreate DB không xóa volume: PASS; toàn bộ fingerprint DB, điểm và hash media giữ nguyên.
+- Xuất/nạp lại bốn images trên cùng daemon với SHA-256 và image IDs: PASS. Archive gzip khoảng 251 MiB. Máy airgap/LAN độc lập: NOT TESTED.
+- Backup và restore sang project/volume mới: PASS. Sau restore giữ 3 khóa / 12 bài / 120 mục / 240 câu / 960 lựa chọn / 82 lượt trả lời / 80 câu hoàn thành / 800 điểm / 3 tài khoản / 2 tệp media; đây là dữ liệu giả sinh bởi bộ E2E, không phải số lượng bộ mẫu chuẩn. Fingerprint dữ liệu và SHA media khớp trước/sau. Browser trên instance phục hồi đăng nhập được; learner còn 800 điểm và 3/10 bài trong khóa hiện tại, báo cáo admin ghi 4 bài trên các khóa; WAV được fetch/phát, guest bị từ chối khi đã đăng xuất, không có request Internet.
+
+Bằng chứng chi tiết và trạng thái cuối xem `IMPLEMENTATION_STATUS.md` và `docs/ACCEPTANCE_REPORT.md`. Các con số trên không thay thế việc kiểm thử/duyệt nội dung, hạ tầng và HTTPS ở đơn vị vận hành thật.

@@ -58,7 +58,26 @@
     "source_tools_image": "sha256:b3759eebbb08a7ea3ebbe88e0e111f861dac162423cc55adc87e06870b3f4c32",
     "source_build": "Frozen pnpm install + Next build + TypeScript + offline maintenance bundle PASS; app is metadata-only derivative of same runtime",
     "runtime_compose": "PASS app/db/nginx health and isolated backend; DB not published",
-    "backup_restore": "NOT TESTED yet",
-    "image_transfer": "NOT TESTED yet; independent airgap host remains NOT TESTED"
+    "backup_restore": "PASS fresh project/volumes; full data fingerprint and media SHA preserved; browser login/progress/WAV playback/logout verified",
+    "image_transfer": "PASS export/load and checksums/4 image IDs on same daemon, then --no-build --pull never startup; NOT TESTED independent airgap host",
+    "persistence": {
+      "courses": 3,
+      "lessons": 12,
+      "vocabulary": 120,
+      "challenges": 240,
+      "options": 960,
+      "attempts": 82,
+      "completed_challenges": 80,
+      "points": 800,
+      "users": 3,
+      "media": 2,
+      "media_sha256": "7fc112c77b6b4320abdcf8e3a8b46ad8ec8fdf94719dec52eea4f2fa5f60cb5c"
+    }
+  },
+  "acceptance": {
+    "pass": 26,
+    "fail": 0,
+    "not_tested": 1,
+    "pending_id": "D02: independent airgap host / real approved LAN"
   }
 }

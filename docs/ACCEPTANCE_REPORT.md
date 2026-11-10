@@ -2,7 +2,7 @@
 
 Ngày ghi nhận: **2026-11-10**, múi giờ Asia/Bangkok. Nguồn tiêu chí: `NGHIEM_THU.md` phiên bản 1.0.
 
-**Trạng thái: chưa hoàn thành nghiệm thu cuối cùng.** Build và 41 kiểm thử unit/integration đã PASS. E2E production 9/9 và E2E Docker chặn egress 9/9 đã PASS; backup/restore và transfer đang kiểm chứng, máy airgap/LAN thật độc lập vẫn NOT TESTED; không suy ra PASS từ việc đã viết mã hoặc tài liệu. Đây không phải chứng nhận offline trong mạng LAN thật hay chứng nhận an toàn thông tin của đơn vị.
+**Trạng thái: chưa hoàn thành nghiệm thu cuối cùng.** Build và 41 kiểm thử unit/integration đã PASS. **26/27 tiêu chí PASS trong phạm vi đã ghi; 0 FAIL trên bản release; D02 còn NOT TESTED trên máy airgap độc lập.** Đã PASS41/41unit+integration,9/9E2E standalone,9/9E2E Compose chặn egress và backup/restore sang instance mới. Máy LAN thật chưa được chứng nhận; không suy ra PASS từ việc đã viết mã hoặc tài liệu. Đây không phải chứng nhận offline trong mạng LAN thật hay chứng nhận an toàn thông tin của đơn vị.
 
 ## Phiên bản và nguồn kiểm chứng
 
@@ -28,13 +28,14 @@ Không có tài khoản, dữ liệu học viên thật hoặc học liệu hạ
 | Lint | **PASS**, exit 0, không có lỗi/cảnh báo | `work/evidence/lint-final.log`; log rỗng là kết quả bình thường của ESLint khi thành công |
 | Typecheck | **PASS**, exit 0 | `work/evidence/typecheck-final.log`; không có chẩn đoán TypeScript |
 | Unit + PostgreSQL integration | **PASS**, **41/41**, fail 0, skip 0; khoảng 58,0 giây | `work/evidence/tests-final.log`: `tests 41`, `pass 41`, `fail 0`, `skipped 0` |
-| Production build | **PASS**, exit 0; compile 31,1 giây, TypeScript 26,5 giây, tạo 30 trang tĩnh | `work/evidence/build-final.log`; có thông báo standalone đã chuẩn bị, không chứa dữ liệu vận hành |
+| Production build | **PASS**, exit 0; release build dùng cache compile4,8giây, TypeScript9,2giây, giai đoạn prerender30/30; các route nghiệp vụ dynamic | `docs/verification/build-release.log`; có thông báo standalone đã chuẩn bị, không chứa dữ liệu vận hành |
 | Audit dependency production | **PASS**, exit 0; 545 dependency, **0** advisory ở mọi mức | `work/evidence/dependency-audit-final.json`; danh mục tại `docs/DEPENDENCIES.md` |
 | E2E production release | **PASS**, 9/9, exit 0, 4,7 phút dưới tải Docker build | `work/evidence/e2e-release.log`, `work/evidence/playwright-release-results.json` |
 | Wizard và responsive thật | **PASS**, tạo10từ → sửa lỗi → upload → lưu → duyệt → học20câu → resume/replay; 360/390/768/1440px | Test B01/B04/B07/C02 trong suite9; ảnh `author-*`, `lesson-cards-*`, `learner-progress-*` |
 | Tools bundle migrate/seed | **PASS** trên PostgreSQL thử nghiệm; migration đã áp dụng được nhận diện, seed lại tạo 0 bản ghi | `work/evidence/bundled-maintenance.log` |
 | Docker app thực + E2E chặn egress | **PASS**, source build → Compose healthy → 9/9 E2E, browser external attempts0 | `docs/verification/e2e-offline-compose.log`, `docker-runtime-offline.log`, `runtime-image-proof.log` |
-| Restore và transfer | **NOT TESTED** tại mốc này | Đang kiểm chứng sau khi E2E ngừng ghi dữ liệu |
+| Backup/restore + recreate | **PASS**, instance/volumes mới, fingerprintDB và2mediaSHA giữ nguyên; browserlogin/800điểm/phátWAV PASS | `docs/verification/{container-recreate,docker-backup,docker-restore,e2e-restored-smoke}.log` và db/media trước–sau |
+| Image transfer cùng host | **PASS** export/load, SHA-256 và4imageIDs, sau đó up `--no-build --pull never` | `docs/verification/offline-image-{export,load}.log`, `observed-image-{ids,sha256}.txt`; máy độc lập vẫn NOT TESTED |
 
 Hai selector test đã được sửa (alert của Next và label chứa select). Kiểm tra screenshot phát hiện toast chọn khóa báo lỗi sai; server action đã trả đường dẫn sau save, client await rồi điều hướng. Suite release9/9 có regression xác nhận toast sai không còn. Tất cả test trình duyệt chặn origin ngoài và xác nhận không có request Internet được thử.
 
@@ -67,8 +68,8 @@ Log và ảnh minh chứng đã kiểm tra chỉ chứa dữ liệu giả đư�
 | C03 | Medium | **PASS** | Unit lịch ôn đúng 1/3/7/14 ngày, trả lời sai reset; PostgreSQL test due-review đồng thời chỉ tăng một bước, không cộng điểm lặp. UI `/review` dùng danh sách đến hạn theo chính user, liên kết luyện bài đã publish. `tests/review.test.ts`, `tests/learning.integration.test.ts`, `db/queries.ts`; không có AI. |
 | C04 | High | **PASS** | E2E form đăng nhập kiểm label và thứ tự focus bàn phím; screenshot `login-keyboard-focus.png`. Các thao tác quiz là button, nội dung Hanzi/Pinyin/VI làm nội dung thay thế âm thanh, form bảng có aria-label, logo trang trí dùng alt rỗng; CSS có focus và reduced-motion. Đây là kiểm tra cơ bản, chưa phải chứng nhận WCAG toàn ứng dụng. |
 | D01 | Critical | **PASS** | Source Docker tools build frozeninstall+Next+TypeScript+bundle thành công; app là metadata-only derivative cùng runtime. Compose mới app/DB/nginx healthy, volumes bền vững,9/9E2E; không dùng host node_modules lúc runtime. `docs/verification/docker-source-tools-pass.log`, `runtime-image-proof.log`, `docker-runtime-offline.log`, `e2e-offline-compose.log`. |
-| D02 | Critical | **NOT TESTED** | Script export/load kiểm SHA-256 và image ID đã có; từ chối checksum hỏng từng được kiểm. Xuất/nạp bộ image cuối cùng và chạy `--pull never` còn chờ. **Máy airgap độc lập chưa được thử**; ngay cả nếu export/load cùng Docker daemon PASS, kết luận máy airgap độc lập vẫn NOT TESTED. Xem bảng bước con bên dưới. |
-| D03 | Critical | **NOT TESTED** | Script backup DB+media/restore transaction và kiểm archive trước mutation đã có; kiểm traversal/symlink/tar hỏng từng PASS. Chưa có bằng chứng backup rồi restore DB+media thật trên instance thử nghiệm mới và so khớp nội dung cuối. |
+| D02 | Critical | **NOT TESTED** trên máy độc lập | Đã PASS xuất/nạp archive251MiB trên cùng daemon, checksumSHA-256 cho archive+manifest và4imageIDs; instance mới chạy `--no-build --pull never` không registry. **Chưa chuyển và cài trên máy airgap độc lập**, vì vậy chưa ghi PASS toàn D02. `docs/verification/offline-image-export.log`, `offline-image-load.log`, `observed-image-ids.txt`, `observed-image-sha256.txt`. |
+| D03 | Critical | **PASS** | Chạy backup DB+media, restore sang project/volumes mới; fingerprintDB trước/sau giống hệt,800điểm/82attempts/80completion/2mediaSHA giữ nguyên. Browser phục hồi đăng nhập, hiện800điểm+3/10bài, WAV8044byte phát0,25s; logout trả401, externalattempts0. `docs/verification/docker-backup.log`, `docker-restore.log`, `db-after-restore.txt`, `media-after-restore.json`, `e2e-restored-smoke.log`. |
 | D04 | High | **PASS** | `.env.example` không chứa secret; `.env*`, `work/`, DB dump/cache không đưa vào Git/image. CLI nhận mật khẩu kín qua stdin, không có admin/admin hay tài khoản mặc định; fixture mật khẩu được tạo ngẫu nhiên, không commit. Auth/admin integration kiểm hash không lộ trong kết quả API. `scripts/create-user.ts`, `.gitignore`, `.dockerignore`, suite 41 PASS. |
 | D05 | High | **PASS** | Giữ LICENSE MIT upstream; `docs/DEPENDENCIES.md` ghi thư viện/giấy phép, `docs/ASSET_LICENSES.md` và Noto OFL/copyright/checksum. Gỡ tài nguyên upstream chưa rõ quyền khỏi bản phân phối. Audit production cuối 545 dependency, 0 advisory, exit 0. Chỉ audit tập production; không coi là chứng nhận chuỗi cung ứng hoặc ý kiến pháp lý. |
 | D06 | Critical | **PASS** | Không chạy deploy công khai/production, không Sites/Vercel deployment; workflow hiện có không tự deploy app. Host thử nghiệm chỉ bind loopback, Compose mặc định LAN_HOST=127.0.0.1; đổi sang IP LAN thật cần phê duyệt. Nhánh riêng/commits giữ lại để review, không merge main. |
@@ -84,10 +85,10 @@ Log và ảnh minh chứng đã kiểm tra chỉ chứa dữ liệu giả đư�
 | Docker source build toàn bộ cuối | **PASS** | `docker-source-tools-pass.log`: frozeninstall → Next build/TypeScript → bundle → image b3759e…; app chỉ đổi CMD từ cùng runtime, wrapper hiện chỉ build source một lần. |
 | Compose app/DB/ingress thực + volumes/healthy | **PASS** | Instance mới, DB không publish port, app/DB/nginx healthy. |
 | App thực không có public egress + browser auth/import/quiz | **PASS** | Route/egress probe và9/9E2E cùng bộ Compose cuối, external browser attempts0. |
-| Export/save bộ image cuối + checksum | **NOT TESTED** | Archive và manifest SHA-256 được tạo/kiểm thành công |
-| Load rồi khởi động không pull trên cùng host | **NOT TESTED** | Kiểm image ID đúng; `docker compose up --no-build --pull never` hoạt động |
+| Export/save bộ image cuối + checksum | **PASS** | Archive251MiB và manifest SHA-256 tạo/kiểm thành công; bốn imageID đã ghi bằng chứng. |
+| Load rồi khởi động không pull trên cùng host | **PASS** | Load không registry, kiểm đúng4imageIDs; fresh restored project up `--no-build --pull never`, app/DB/nginx healthy. |
 | Nạp và vận hành trên máy airgap độc lập | **NOT TESTED** | Người vận hành thử trên host khác đã chuẩn bị Docker/OS, không Internet |
-| Backup/restore DB + media trên instance mới | **NOT TESTED** | So dữ liệu/điểm/attempt/media trước–sau; không dùng dữ liệu thật |
+| Backup/restore DB + media trên instance mới | **PASS** | ExactDBfingerprint và mediaSHA khớp; browser đăng nhập/tiến độ/phátWAV/logout đã kiểm chứng. |
 
 ## Lệnh tái lập
 
@@ -123,14 +124,22 @@ docker compose up -d --no-build --pull never
 scripts/docker-offline-verify.sh
 ```
 
-Không chạy restore lên DB thật để nghiệm thu. Chỉ đổi D03 sang PASS sau khi restore vào instance mới và đối chiếu cả DB lẫn media.
+Không chạy restore lên DB thật để nghiệm thu. D03 đã PASS trên instance/volume mới với dữ liệu giả; cần chạy lại quy trình tại môi trường được phê duyệt.
 
 ## Rủi ro và cổng phê duyệt trước phát hành
 
-1. **Kiểm chứng hạ tầng còn chờ:** wizard/responsive production đã PASS; cần chốt Docker/runtime offline/backup/transfer bằng kết quả thực. Máy airgap và LAN thật độc lập vẫn cần người vận hành kiểm thử.
-2. **Giới hạn máy build:** Docker `vfs` trên ổ khoảng 8 GB từng hết dung lượng; lỗi build môi trường không được xem là bằng chứng app không chạy, cũng không được bỏ qua để ghi PASS. Có đường đóng gói production artifact nhỏ hơn; cần giữ cùng commit, lockfile và log.
+1. **Máy độc lập:** D02 vẫn NOT TESTED trên host airgap khác và chưa chứng nhận mạng LAN thật. Cần người vận hành dựng lại từ archive/manifest trên hạ tầng được phê duyệt; thử cùng daemon không thay bước này.
+2. **Tài nguyên/kiến trúc:** Docker vfs trên ổ8GB từng ENOSPC. Đã xử lý bằng một sourcebuild + runtime metadata và archivegzip; bộ cài Docker/OS, đủ dung lượng và CPUarch phù hợp vẫn cần chuẩn bị trên máy nhận.
 3. **Nội dung và âm thanh:** 100 mục mẫu chưa được chuyên gia duyệt; WAV sin chỉ là fixture kỹ thuật. Cần phê duyệt bản dịch/Pinyin/nội dung chuyên ngành và quyền/chất lượng bản ghi Mandarin trước khi dùng đào tạo chính thức.
 4. **LAN production:** tên miền/chứng chỉ HTTPS nội bộ, firewall, IP bind, danh sách vai trò, thời hạn phiên và lịch backup phải được đơn vị quản lý phê duyệt. Không tự triển khai công khai; chưa kiểm chứng hay chứng nhận mạng LAN thật.
 5. **Dữ liệu hiện hữu và chuyển giao:** các kiểm thử bảo toàn dùng DB giả. Nâng cấp từ DB upstream có dữ liệu thật hoặc host airgap độc lập cần sao lưu, thử trên bản sao và nghiệm thu quy trình khôi phục; chưa có thử nghiệm dữ liệu thật và không được tự sửa/xóa dữ liệu đó.
 
-Sau khi các kết quả đang chờ được bổ sung, vẫn cần người quản lý duyệt nội dung, cấu hình mạng/TLS, phân quyền production và kiểm thử trên hạ tầng được phép. Báo cáo cloud không tự cấp phép triển khai tại đơn vị.
+Trước phát hành vẫn cần người quản lý duyệt nội dung, tên miền/chứng chỉHTTPS, firewall/IPbind, tài khoản/quyềnDB và vai trò production, secrets, lịch backup và kiểm thử trên hạ tầng được phép. Báo cáo cloud không cấp phép triển khai tại đơn vị.
+
+## Ảnh minh chứng
+
+- [Biên soạn360px](verification/author-360.png), [biên soạn1440px](verification/author-1440.png).
+- [Thẻ Hanzi/Pinyin390px](verification/lesson-cards-390.png), [tiến độ390px](verification/learner-progress-390.png).
+- [Instance khôi phục](verification/restored-progress-media.png).
+
+Bộ binary image251MiB không commit vào Git; manifest/checksum lần thử nằm trong verification. Tạo gói mới bằng scripts được hướng dẫn tại LAN_DEPLOYMENT.md.

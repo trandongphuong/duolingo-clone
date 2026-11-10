@@ -12,5 +12,5 @@ if [[ "$3" == app ]]; then
 else
   startup='CMD ["npm", "run", "db:migrate"]'
 fi
-printf 'ARG RUNTIME_IMAGE\nFROM ${RUNTIME_IMAGE}\n%s\n' "$startup" |
+printf 'ARG RUNTIME_IMAGE=han-ngu-bien:1.0\nFROM ${RUNTIME_IMAGE}\n%s\n' "$startup" |
   docker build --build-arg "RUNTIME_IMAGE=$source_image" -t "$target_image" -

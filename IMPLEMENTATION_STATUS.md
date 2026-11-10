@@ -71,3 +71,14 @@
 - PASS network thực: app không có defaultIPv4route; publicTCP1.1.1.1:443 trảENETUNREACH.
 - PASS9/9E2E trên Compose trong điều kiện chặn egress, exit0,1.9phút: nhập/publish/âm thanh/quiz/tiến độ/roles/responsive đều hoạt động; browser không thử request ra origin ngoài.
 - Các log/ảnh chỉ chứa dữ liệu giả đã chọn lưu `docs/verification/`; trace,secret,DBdump/media không commit. Đang kiểm chứng backup/restore, recreate và xuất/nạp image. Máy LAN/airgap thật độc lập vẫn NOT TESTED; chưa nghiệm thu cuối.
+
+## 2026-11-10 — Bàn giao D / kết quả cuối trong cloud
+
+- PASS recreate app đổiIP khi nginx vẫn chạy và recreateDB giữvolumes: fingerprintDB vàSHA2tệpmedia không đổi.
+- PASS xuất/nạp archive251MiB, SHAarchive+manifest và4imageIDs, khởi động lại bằng `--no-build --pull never` không registry trên cùngdaemon.
+- PASS backupscript và restore thật sang project/volumes mới. Đã sửa race initdb bằng chờpg_isready trướcpg_restore; script chạyexit0.
+- Saurestore:3khóa/12bài/120mục/240câu/960lựa chọn/82attempts/80completion/800điểm/40reviews/3users/2media, fingerprintvàSHAmedia khớp trước–sau. Đây là dữ liệuE2Egiả, không phải số lượng bộmẫu chuẩn10bài/100mục.
+- PASS browser trêninstancephục hồi: adminreport800điểm+4bài tổng; learner800điểm+3/10bài trongkhóa; WAV8044byte phát0.25s; logout→401; khôngrequestInternet.
+- PASS typecheckrelease vàbash/node syntax lầncuối; Git scan không có .env thật, dump,archive,testaccountsecrets trong trackedfiles. Chỉ.env.example được theo dõi.
+- `docs/ACCEPTANCE_REPORT.md`:26PASS/0FAIL/1NOT TESTED. D02máyairgapđộc lập chưa kiểm chứng; LANthật chưa được chứng nhận. Không tuyên bố hoàn thành nghiệm thu cuối, không merge main, không deploy công khai.
+- Evidence đã lọc chỉdữliệugiả tại `docs/verification/`. Archivebinary,DBdump,media,secrets/trace giữngoàiGit trongwork; scriptscho phép táitạo gói trên máybuild được phép.

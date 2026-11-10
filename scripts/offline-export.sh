@@ -28,4 +28,4 @@ case "$archive_path" in
 esac
 (cd -- "$archive_dir" && sha256sum -- "$archive_name" "$archive_name.images" > "$archive_name.sha256")
 echo "Saved images and SHA-256 to $archive_path and $archive_path.sha256"
-echo 'Transfer all three archive files with compose.yaml, the private env file, and operational scripts.'
+echo 'Transfer the three archive files with compose.yaml and scripts. Create private env settings separately on the LAN host.'

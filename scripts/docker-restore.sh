@@ -34,6 +34,19 @@ if LC_ALL=C awk 'substr($0,1,1) !~ /^[d-]$/ { bad=1 } END { exit !bad }' "$archi
   echo 'Media archive must contain only files/directories, not links or special files.' >&2
   exit 1
 fi
+# compose up -d returns before a fresh PostgreSQL cluster finishes initdb.
+db_ready=false
+for attempt in {1..30}; do
+  if docker compose exec -T db sh -c 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null 2>&1; then
+    db_ready=true
+    break
+  fi
+  sleep 1
+done
+if [[ "$db_ready" != true ]]; then
+  echo 'Database was not ready after 30 seconds; no restore mutations were attempted.' >&2
+  exit 1
+fi
 docker compose exec -T db sh -c 'exec pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner --no-acl --exit-on-error --single-transaction' < "$backup_dir/database.dump"
 docker compose run --rm --no-deps -T tools sh -c 'find /data/media -mindepth 1 -maxdepth 1 -exec rm -rf -- {} \;'
 docker compose run --rm --no-deps -T tools tar --no-same-owner --no-same-permissions -C /data/media -xzf - < "$backup_dir/media.tar.gz"

@@ -1,0 +1,2 @@
+Saved images and SHA-256 to /workspace/duolingo-clone/work/hnb-offline-images.tar.gz and /workspace/duolingo-clone/work/hnb-offline-images.tar.gz.sha256
+Transfer all three archive files with compose.yaml, the private env file, and operational scripts.
