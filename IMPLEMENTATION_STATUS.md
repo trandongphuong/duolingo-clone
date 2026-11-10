@@ -56,3 +56,10 @@
 - Wizard E2E thực tế PASS32.4s:10dòng, sửa lỗi Pinyin, upload/play, export, gửi duyệt/admin publish,20câu+mộtcâu sai, reload/replay/logout-login,4kích thước màn hình. Sau sửa2selector của test, suite9/9PASS trên production.
 - Kiểm tra ảnh chụp phát hiện toast chọn khóa báo lỗi dù thao tác thành công: đã đổi action trả đường dẫn tin cậy sau save, client await trong async transition rồi điều hướng. Đã build release PASS và đang chạy lại9case có regression không còn toast sai.
 - Không coi9/9trước sửa toast là bằng chứng cho bản sửa mới; kết quả mới sẽ bổ sung. Docker source-build đã giải quyết network bằng CA+Node env-proxy; đang kiểm tra giới hạn dung lượng trước runtime/offline/restore.
+
+## 2026-11-10 — E2E release PASS
+
+- Suite release9/9PASS, exit0,4.7phút trong khi Docker build cùng2CPU. Có regression không còn toast chọn khóa sai; guest/3roles/admin UI/CSV/XLSX/media/wizard/resume/replay/3bài mẫu đều qua.
+- Kiểm15ảnh và overflow ở360/390/768/1440px: Hanzi/Pinyin/nghĩa/audio local hiển thị đúng; bảng từ chỉ cuộn trong khung riêng. Không có request Internet được thử từ trình duyệt.
+- Bằng chứng: `work/evidence/e2e-release.log`, `playwright-release-results.json` và ảnh `author-*`, `lesson-cards-*`, `learner-progress-*`.
+- Source Docker tools đã build thành công từ frozen dependency qua Next build+TypeScript+bundle; app sẽ dùng cùng runtime bằng metadata khác. Đang kiểm chứng Compose/offline/backup, chưa ghi PASS cho các tiêu chí này.
