@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ContentError } from "@/lib/content";
 import { assertSameOrigin } from "@/lib/security";
+import { ActorWriteError } from "@/lib/write-actor";
 
 export const MAX_BODY_BYTES = 6 * 1024 * 1024;
 
@@ -46,7 +47,7 @@ export async function mutationBody(request: Request, multipart = false) {
 }
 
 export function authorError(error: unknown) {
-  if (error instanceof ContentError)
+  if (error instanceof ContentError || error instanceof ActorWriteError)
     return NextResponse.json(
       { error: error.message },
       { status: error.status }

@@ -112,3 +112,11 @@
 - PostgreSQL `hnb-demo-db-xpuz` available/Free, database `hnb_demo`, IP allowlist rỗng; hết hạn **10/12/2026** theo metadata Render. Web `hnb-demo-web-xpuz` Free, không có persistent disk; media tạm theo giới hạn đã thông báo.
 - NOT TESTED: public-client/browser/đăng nhập/E2E hosted. Curl qua proxy bị CONNECT 403; Chromium lỗi tunnel; công cụ web không truy cập được URL. Đây là hạn chế môi trường, không suy ra ứng dụng FAIL. Tool SQL bị DB private từ chối; không mở DB public. Upload hosted/cookie hosted/thử sleep/expiry và billing overage chưa kiểm chứng.
 - Bằng chứng `docs/verification/render-hosting.txt`, `docs/verification/render-public.txt`; kiểm thử local vẫn PASS theo `render-demo.txt`. Render Live không đồng nghĩa hoàn tất nghiệm thu toàn bộ hoặc chứng nhận airgap độc lập D02.
+
+## 2026-11-11 — Local release / rà soát quyền ghi
+
+- Người dùng yêu cầu tiếp tục tới bản triển khai local và xác nhận máy đích Windows 10/11. Tạo nhánh `feat/han-ngu-bien-local-release`; giữ demo Render hiện tại, không đổi hạ tầng cloud.
+- Rà lại đầy đủ đặc tả/nghiệm thu. Đã bổ sung kiểm tra active/role và khóa actor trong transaction create/save/publish/media, trước khóa nội dung; request bắt đầu trước khi tài khoản bị khóa/hạ quyền không còn ghi bằng quyền cũ. Upload lỗi chỉ dọn file vừa tạo thành công, không xóa nhầm file tồn tại.
+- PASS full unit+PostgreSQL integration trên DB giả mới `hnb_local_release_test`: **65/65**, fail0/skip0, exit0,30.3s. Bao gồm 6 race create/save/publish × khóa/hạ quyền, giữ nguyên lịch sử/137điểm; 12 fault tests cho export/backup/restore. Lint/typecheck trước build PASS.
+- Đang bổ sung PowerShell native, TLS overlay và gói ZIP offline; build/E2E mới và HTTP regression thu hồi quyền upload đang thực hiện. Chưa ghi PASS cho các phần chưa chạy. Máy Windows/airgap độc lập vẫn NOT TESTED.
+- Đã dừng/xóa đúng containers của project restore giả cũ để giải phóng dung lượng, bảo toàn toàn bộ named volumes/backup. DB mới chỉ chứa dữ liệu kiểm thử; không chạm dữ liệu thật.
