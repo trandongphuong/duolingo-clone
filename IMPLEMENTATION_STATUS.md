@@ -120,3 +120,11 @@
 - PASS full unit+PostgreSQL integration trên DB giả mới `hnb_local_release_test`: **65/65**, fail0/skip0, exit0,30.3s. Bao gồm 6 race create/save/publish × khóa/hạ quyền, giữ nguyên lịch sử/137điểm; 12 fault tests cho export/backup/restore. Lint/typecheck trước build PASS.
 - Đang bổ sung PowerShell native, TLS overlay và gói ZIP offline; build/E2E mới và HTTP regression thu hồi quyền upload đang thực hiện. Chưa ghi PASS cho các phần chưa chạy. Máy Windows/airgap độc lập vẫn NOT TESTED.
 - Đã dừng/xóa đúng containers của project restore giả cũ để giải phóng dung lượng, bảo toàn toàn bộ named volumes/backup. DB mới chỉ chứa dữ liệu kiểm thử; không chạm dữ liệu thật.
+
+## 2026-11-12 — Local release / công cụ Windows và vận hành
+
+- Đã khôi phục môi trường sau tạm dừng; kiểm tra Docker/socket và DB giả trước khi tiếp tục. Unit/integration mới nhất **75/75 PASS**, fail0/skip0,31.4s; standalone browser **9/9 PASS**,2.1phút; HTTP upload bị hạ quyền/khóa **2race PASS** với kiểm DB/files không đổi.
+- Bổ sung PowerShell5.1-compatible native entry point, common transport binary/UTF8, Start/Doctor kiểm context/localLinux/amd64 và imageID, Configure RNG/ACL, LoadImages exactSHA, CreateAdmin stdin, Backup/Restore staging. pwsh7.6.9/Linux **13smokechecks PASS**; đây chưa phải kiểm chứng Windows5.1/NTFS/Docker thật.
+- Công cụ Bash backup/restore/export/load đã hardening staging/khóa/publication; **22faulttests PASS**, gồm checksum thiếu/trùng/đường dẫn lạ và dump hỏng trước ghi DB. TLS overlay thay HTTP publication bằng một cổng TLS, DB private.
+- Builder ZIP Python stdlib **11guardtests PASS**; nguồn sạch, imageversion/provenance/ID và allowlist; không có Node/Python/source runtime trên máy đích. Chuẩn bị draft download bằng GitHub standard public runner và Release assets; không dùng artifact storage tính phí hoặc publish release cuối.
+- [Báo cáo RC](docs/LOCAL_RELEASE_REPORT.md) ghi phạm vi hiện có. Source Docker/TLS/Composeoffline/restore mới và gói tải thực vẫn đang thực hiện; chưa ghi PASS các mục này. D02 và máy Windows đích vẫn NOT TESTED.

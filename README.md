@@ -4,7 +4,9 @@
 
 **Học liệu mẫu chưa kiểm duyệt.** 10 bài/100 mục chỉ để thử phần mềm. Chưa có bản ghi phát âm Mandarin được thẩm định. Nội dung hàng hải công khai không thay thế IMO SMCP tiếng Anh. Xem `IMPLEMENTATION_STATUS.md` và `docs/ACCEPTANCE_REPORT.md` để biết kiểm thử thực tế; chưa được chứng nhận offline trong mạng thật.
 
-**Demo Render Free:** [mở trang đăng nhập](https://hnb-demo-web-xpuz.onrender.com/sign-in). Render xác nhận deployment Live và bootstrap thành công. Tài khoản `demo_admin`; chủ tài khoản xem secret `DEMO_ADMIN_PASSWORD` tại Environment của [web service](https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g). Database demo hết hạn **10/12/2026**; file tải lên chỉ lưu tạm. Kiểm thử trình duyệt công khai từ môi trường cloud bị chặn; xem [bằng chứng triển khai](docs/verification/render-hosting.txt).
+**Bản cài local cho Windows 10/11:** xem [cách tải đúng bộ cài](docs/DOWNLOAD_LOCAL.md), [hướng dẫn PowerShell](docs/WINDOWS_LOCAL.md), [gói ZIP offline](docs/OFFLINE_RELEASE.md) và [HTTPS LAN](docs/LAN_HTTPS.md). Máy đích dùng Docker Linux/amd64 đã được chuẩn bị; không cần Node.js, pnpm hoặc source sau khi nhận gói image. Bản `1.0.0-rc.1` phục vụ nghiệm thu, chưa được chứng nhận trên máy Windows/airgap độc lập.
+
+**Demo Render Free:** [mở trang đăng nhập](https://hnb-demo-web-xpuz.onrender.com/sign-in). Tài khoản `demo_admin`; chủ tài khoản xem secret `DEMO_ADMIN_PASSWORD` tại Environment của [web service](https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g). Database demo hết hạn **10/12/2026**, file tải lên lưu tạm. Demo này độc lập với dữ liệu bản cài local; [bằng chứng hosting](docs/verification/render-hosting.txt).
 
 ## Chạy phát triển với dữ liệu giả
 
@@ -69,6 +71,8 @@ E2E đọc tài khoản từ `work/test-accounts.json` không được theo dõi
 ## Docker LAN, airgap, sao lưu và khôi phục
 
 Xem `docs/LAN_DEPLOYMENT.md`: build image đã khóa digest, app/DB trong network không có route Internet; Nginx chỉ nhận cổng bind đã cấu hình. Postgres không publish port. Có healthcheck, volume DB/media, tools image để migrate/bootstrap/seed khi không Internet.
+
+Windows dùng `scripts/windows/HanNguBien.ps1` để Configure/LoadImages/Doctor/Start/CreateAdmin và Backup/Restore. Runtime image có nhãn commit/version, gói phát hành có checksum và `RELEASE.json`. Quy trình chi tiết tại [Windows local](docs/WINDOWS_LOCAL.md); [báo cáo RC](docs/LOCAL_RELEASE_REPORT.md) phân biệt kết quả cloud và kiểm chứng trên máy đích.
 
 ```bash
 cp .env.example .env

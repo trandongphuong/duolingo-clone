@@ -1,0 +1,14 @@
+Local real-HTTP media authorization regression — 2026-11-12
+Command: tsx tests/system/media-revocation.ts with private test-only environment.
+Target: loopback app127.0.0.1:3300 + disposable hnb_local_release_test PostgreSQL.
+
+PASS — demotion during an authenticated upload:
+  Request reached actor FOR SHARE and waited on this test's user-row lock.
+  Commit author→learner; HTTP403; media rows/files unchanged; fake actor restored.
+PASS — account lock during an authenticated upload:
+  Request reached actor FOR SHARE and waited on this test's user-row lock.
+  Commit active=false; HTTP403; media rows/files unchanged; fake actor restored.
+PASS — cleanup/lifecycle: no media writes survived; browser/pools closed.
+
+Exit0, two deterministic races. No password, cookie, hash or database URL recorded.
+This test does not replace Windows/airgap-machine acceptance.

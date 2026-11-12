@@ -12,6 +12,32 @@ if [[ ! -f "$archive_path" || ! -f "$archive_path.sha256" || ! -f "$archive_path
   echo 'The image archive, its .images manifest and .sha256 file are required.' >&2
   exit 1
 fi
+# sha256sum accepts manifests that omit our archive or hash unrelated paths.
+# Require exactly the two expected local files before it can read any filename.
+checksum_archive_seen=false
+checksum_images_seen=false
+checksum_count=0
+while IFS= read -r checksum_line || [[ -n "$checksum_line" ]]; do
+  if [[ ! "${checksum_line:0:64}" =~ ^[a-fA-F0-9]{64}$ ||
+        ( "${checksum_line:64:2}" != '  ' && "${checksum_line:64:2}" != ' *' ) ]]; then
+    echo 'Invalid image checksum manifest format.' >&2
+    exit 1
+  fi
+  checksum_name=${checksum_line:66}
+  if [[ "$checksum_name" == "$archive_name" && "$checksum_archive_seen" == false ]]; then
+    checksum_archive_seen=true
+  elif [[ "$checksum_name" == "$archive_name.images" && "$checksum_images_seen" == false ]]; then
+    checksum_images_seen=true
+  else
+    echo 'Image checksums must name only the archive and its .images manifest, once each.' >&2
+    exit 1
+  fi
+  checksum_count=$((checksum_count + 1))
+done < "$archive_path.sha256"
+if [[ "$checksum_count" != 2 || "$checksum_archive_seen" != true || "$checksum_images_seen" != true ]]; then
+  echo 'Both image archive and .images checksums are required exactly once.' >&2
+  exit 1
+fi
 (cd -- "$archive_dir" && sha256sum --check -- "$archive_name.sha256")
 # Validate manifest structure before Docker can change any local image tags.
 declare -A seen_images=()
