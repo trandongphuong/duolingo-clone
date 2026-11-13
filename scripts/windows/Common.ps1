@@ -81,6 +81,8 @@ function Invoke-HnbDocker {
     $start.RedirectStandardInput = $true
     $start.RedirectStandardOutput = $true
     $start.RedirectStandardError = $true
+    $start.StandardOutputEncoding = New-Object System.Text.UTF8Encoding($false)
+    $start.StandardErrorEncoding = New-Object System.Text.UTF8Encoding($false)
     if ($Arguments[0] -eq 'compose') {
         # Compose normally prefers inherited process variables over --env-file.
         # Keep the validated private file authoritative; do not change the

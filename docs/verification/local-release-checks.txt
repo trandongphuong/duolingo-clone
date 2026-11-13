@@ -1,0 +1,83 @@
+Local release verification — results2026-11-12, recorded2026-11-13 Asia/Bangkok
+Branch feat/han-ngu-bien-local-release; packaging version1.0.0-rc.1.
+Synthetic data only. Private environment/credentials/dumps/media stay in work/.
+
+PASS source quality:
+  node_modules/.bin/eslint — exit0.
+  node_modules/.bin/tsc --noEmit --incremental false — exit0.
+  tsx --test tests/*.test.ts with matching disposable TEST_DATABASE_URL — exit0.
+    tests75,pass75,fail0,skipped0,duration31.4s.
+    Includes22 operationalfaulttests and6actor-lock races.
+  Host next build --turbopack + prepare-standalone — exit0;
+    compile42s,TypeScript25.7s,30/30prerender.
+  Production pnpm audit --prod --json — exit0,all severity counts0.
+
+PASS operator/package validation:
+  Python stdlib tests/test_release_package.py — 11PASS,exit0.
+  pwsh7.6.9/Linux tests/windows-local-smoke.ps1 —13PASS,exit0.
+  tests/windows-backup-smoke.ps1 — all mock/binary/TAR/failuregroupsPASS,exit0.
+  ActualWindows5.1/ACL/engine is not inferred from those Linux checks.
+  Bashsyntax and Gitdiffcheck — exit0.
+
+PASS actual source Docker release build:
+  RELEASE_VERSION=1.0.0-rc.1 HANNGU_IMAGE=han-ngu-bien:1.0.0-rc.1
+  HANNGU_TOOLS_IMAGE=han-ngu-bien-tools:1.0.0-rc.1 scripts/docker-build.sh
+  exit0; frozenpnpm11.11.0 install30.7s,Nextcompile26.7s,TypeScript13.4s,
+  standalone/allowlistedmaintenance complete; no hostnode_modulesruntime.
+  Source revision c5e68f3cf3b406e671a8a0937597f7a538782b73.
+  app sha256:cbfe60aab9fe7fe163136d9709d242ce6c717f4851228b6ed2b679349c1c1b8d
+  tools sha256:5220e86824ecd99b89f91ac1a85b9a52aea3202df1eaa15e40859129c3ac65bc
+  Both labels version1.0.0-rc.1, revision above, build-methodsource-docker.
+
+PASS real runtime/browser:
+  Standalone Playwright suite9/9,exit0,2.1minutes.
+  New Compose hnb-local-rc-test, PostgreSQL/media new namedvolumes,
+  --no-build --pull never; allthree serviceshealthy.
+  RCCompose Playwright suite9/9,exit0,3.6minutes: guest/RBAC/keyboard/roles,
+  CSV/XLSX/wizard/publish/legalWAV/range/quiz/three lessons/resume/mobile.
+  Browser external-origin request assertions passed; app defaultIPv4routeabsent,
+  publicTCP1.1.1.1:443→ENETUNREACH; DB does not publish a port.
+  Real upload revocation2races HTTP403,media DB/filesunchanged:
+    see media-revocation.txt.
+
+PASS TLS/readiness:
+  compose.yaml +compose.tls.yaml → one TLS port, no base HTTPpublication.
+  Generated disposable CA/certificate underignoredwork; nginxconfigtestexit0.
+  curl --cacert QA-CA https://localhost:33443/sign-in →HTTP200.
+  Same curl withoutQA-CA →exit60, expecteduntrustedcertificatefailure.
+  No --insecure/-k,globaltruststorechange or browsercertificatebypass.
+  ActualAPI TLSlogin/cookieSecureHttpOnlyLax/admin200/guest401/logoutreplay401:
+    see local-tls.txt.
+  Executed configured readiness command: validDB/sessionexit0;
+    deliberatelyinvalidDBcredentialsexit1,shortsessionsecretexit1.
+  TLS ingress loopbackhealth and offlineverify alsoPASS.
+
+PASS actual backup/restore to independent test instance/volumes:
+  bash scripts/docker-backup.sh <private-new-test-directory> --stop-app —exit0.
+  Complete snapshotchecksums published; originalapprestarted.
+  Source testcontainers down without -v; retainedsourceDB/media volumes.
+  New target hnb-local-rc-restored-test, new DB hnb_local_restore_test,
+  separate password/volumes, same ephemeraltestCA; no sourcevolumereuse.
+  bash scripts/docker-restore.sh <test-backup> --confirm-replace —exit0.
+  Compared all16 publictables+sequencevalues beforeopeningtargetapp.
+  Counts preserved:3courses,3units,12lessons,120vocabulary,240challenges,
+    960options,82attempts,80completedchallenges,40reviews,3users,2media.
+  DB+sequence SHA256:
+    349b3689ac8c54230c609eccbd16037e53da8038c9be44d8fef8d5d7e80d8e1f
+  Media IDs/sizes/SHA256 arrays identical before/after.
+  Learner preserved800points and4completedlessons acrosscourses.
+  Restored app/DB/ingress healthy; strictHTTPSAPIlogin, learnerreport,
+    bothmedia bytes/SHA256 and206ranges, logout/replay401 allPASS.
+  Restored runtime offlineverifyPASS; sourcevolumes/backups preserved.
+
+Resolved environment issues:
+  VFS on8GBdisk exhausted whilecreatingingress. Removedonlygeneratedbuildcache
+  and disposableoldimageartifacts, keptDB/media volumes; actualstart/E2E rerunPASS.
+  Workspace public nginxTLSconfig/cert had restrictive hostmode; corrected
+  readpermissions before TLS test. DisposableQAkey nevercommitted/distributed.
+
+NOT TESTED at this evidence checkpoint:
+  Physical Windows10/11, its PowerShell5.1/NTFS/DockerWSL2 integration,
+  real LAN/airgap independentmachine, approvedproductioncertificates/firewall,
+  final releaseZIP and remote draft upload. Artifact checks recorded separately.
+  All data in these tests was synthetic; no realuser/limitedmaritimedata used.

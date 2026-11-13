@@ -128,3 +128,12 @@
 - Công cụ Bash backup/restore/export/load đã hardening staging/khóa/publication; **22faulttests PASS**, gồm checksum thiếu/trùng/đường dẫn lạ và dump hỏng trước ghi DB. TLS overlay thay HTTP publication bằng một cổng TLS, DB private.
 - Builder ZIP Python stdlib **11guardtests PASS**; nguồn sạch, imageversion/provenance/ID và allowlist; không có Node/Python/source runtime trên máy đích. Chuẩn bị draft download bằng GitHub standard public runner và Release assets; không dùng artifact storage tính phí hoặc publish release cuối.
 - [Báo cáo RC](docs/LOCAL_RELEASE_REPORT.md) ghi phạm vi hiện có. Source Docker/TLS/Composeoffline/restore mới và gói tải thực vẫn đang thực hiện; chưa ghi PASS các mục này. D02 và máy Windows đích vẫn NOT TESTED.
+
+## 2026-11-13 — Local release / kiểm chứng runtime và phục hồi
+
+- Đã xác nhận kết quả chạy ngày12/11: sourceDockerRC build PASS trên `c5e68f3`, frozeninstall30.7s,Nextcompile26.7s,TypeScript13.4s; app/tools có OCIrevision/version/build-method. Lint/typecheck/audit0advisory PASS.
+- ComposeRC mới **9/9 E2E PASS**,3.6phút dưới điều kiện app không defaultIPv4route/publicTCPENETUNREACH và DB private. HTTPS xác thực CA PASS, CA chưa tin bị từ chối; cookieSecure/HttpOnly/Lax,adminAPI200/guest401/logout-replay401 PASS.
+- Readiness đã kiểm DB/schema/session thay vì chỉ guestHTML; DB sai credential hoặc sessionsecret ngắn trảexit1, cấu hình hợp lệ exit0. TLShealth dùng loopback8081 nên offlineverify hỗ trợ cảHTTP/TLS.
+- Backup/restore thật sang project/volumes/DB mới PASS:16table+sequencefingerprint và2mediaSHA khớp; 3khóa/12bài/120mục/800điểm/4bài hoàn thành. Saurestore đăng nhậpHTTPS, đọc báo cáo/byte/range media/logout-replay và egress-deny đều PASS.
+- ENOSPC do8GB/VFS đã được xử lý bằng dọn đúngcache build và artifacts thử; giữvolumes/backup. Không có dữ liệu thật bị xóa. Sourcecontainers đã dừng saukiểm thử để đủ dung lượng xuấtimage/ZIP.
+- Bằng chứng: `docs/verification/local-release-checks.txt`, `local-tls.txt`, `media-revocation.txt`. Đang xuất gói và tạo download draft; Windowsmáyđích/D02 vẫn NOT TESTED, chưa tuyên bố nghiệm thu cuối.

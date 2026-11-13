@@ -158,7 +158,7 @@ try {
         $null = New-Item -ItemType Directory -Path $tarInput
         [IO.File]::WriteAllBytes((Join-Path $tarInput 'real-media.bin'), [byte[]](0, 255, 128, 42))
         $realTar = Join-Path $testRoot 'real-tar.tar.gz'
-        & $tarCommand.Source -C $tarInput -czf $realTar .
+        & $tarCommand.Source --format=ustar -C $tarInput -czf $realTar .
         Assert-Test ($LASTEXITCODE -eq 0) 'system tar fixture created'
         Assert-Test ((Invoke-TestValidator $realTar) -eq 0) 'archive produced by system tar is accepted'
     }

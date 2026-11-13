@@ -131,6 +131,7 @@ try {
     $child = Join-Path $temporary 'native mock.ps1'
     [System.IO.File]::WriteAllText($child, @'
 param([string]$Mode, [Parameter(ValueFromRemainingArguments=$true)][string[]]$Values)
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
 if($Mode -eq 'echo') { [Console]::OpenStandardInput().CopyTo([Console]::OpenStandardOutput()); exit 0 }
 if($Mode -eq 'args') { [Console]::Out.Write(($Values | ConvertTo-Json -Compress)); exit 0 }
 if($Mode -eq 'compose') { [Console]::Out.Write((@{lan=([Environment]::GetEnvironmentVariable('LAN_HOST')); image=([Environment]::GetEnvironmentVariable('HANNGU_IMAGE')); unrelated=$env:HNB_SMOKE_UNRELATED} | ConvertTo-Json -Compress)); exit 0 }
