@@ -3,7 +3,11 @@ name: Build local installer draft
 on:
   push:
     branches: [feat/han-ngu-bien-local-release]
-    paths: [.github/workflows/local-release.yml]
+    paths:
+      - .github/workflows/local-release.yml
+      - scripts/windows/**
+      - tests/windows-*.ps1
+      - scripts/package-offline.py
   workflow_dispatch:
     inputs:
       version:
@@ -230,6 +234,8 @@ jobs:
           import json, os, pathlib
           state = json.loads(pathlib.Path('work/release-state.json').read_text())
           checksum = pathlib.Path('work/releases', os.environ['RELEASE_FILENAME'] + '.sha256').read_text().strip()
+          print(f'Verified installer draft: {state["url"]}')
+          print(checksum)
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
               output.write(f'### Local installer draft ready\n\n[Open the draft release]({state["url"]})\n\n')
               output.write('Owner/write-access login is required. This workflow does not publish the release.\n\n')

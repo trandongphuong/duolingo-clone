@@ -45,6 +45,25 @@ function Open-HnbBinaryOutput {
     return [System.IO.File]::Open($Path, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
 }
 
+function Start-HnbNativeProcess {
+    param([Parameter(Mandatory = $true)][System.Diagnostics.Process]$Process)
+    $encoding = New-Object System.Text.UTF8Encoding($false)
+    if ($null -ne $Process.StartInfo.GetType().GetProperty('StandardInputEncoding')) {
+        $Process.StartInfo.StandardInputEncoding = $encoding
+        return $Process.Start()
+    }
+    # .NET Framework used by PowerShell 5.1 has no StandardInputEncoding.
+    # Process.Start creates an AutoFlush StreamWriter with Console.InputEncoding;
+    # if that encoding has a BOM, it writes bytes before our raw stream copy.
+    # Select a BOM-free encoding only while the process constructs its pipes.
+    $previousEncoding = [Console]::InputEncoding
+    try {
+        [Console]::InputEncoding = $encoding
+        return $Process.Start()
+    }
+    finally { [Console]::InputEncoding = $previousEncoding }
+}
+
 function Assert-HnbListenAddress {
     param([Parameter(Mandatory = $true)][string]$Address)
     $listener = $null
@@ -109,7 +128,7 @@ function Invoke-HnbDocker {
         if ($OutputFile) {
             $outputStream = Open-HnbBinaryOutput -Path $OutputFile
         }
-        if (-not $process.Start()) { throw 'Unable to start Docker.' }
+        if (-not (Start-HnbNativeProcess -Process $process)) { throw 'Unable to start Docker.' }
         $started = $true
         if ($outputStream) { $outputTask = $process.StandardOutput.BaseStream.CopyToAsync($outputStream) }
         else { $outputTask = $process.StandardOutput.ReadToEndAsync() }

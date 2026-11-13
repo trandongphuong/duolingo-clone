@@ -20,6 +20,7 @@ $savedDockerHost = [Environment]::GetEnvironmentVariable('DOCKER_HOST')
 $savedLanHost = [Environment]::GetEnvironmentVariable('LAN_HOST')
 $savedAppImage = [Environment]::GetEnvironmentVariable('HANNGU_IMAGE')
 $savedUnrelated = [Environment]::GetEnvironmentVariable('HNB_SMOKE_UNRELATED')
+$savedInputEncoding = [Console]::InputEncoding
 try {
     foreach ($file in @('Common.ps1', 'HanNguBien.ps1')) {
         $path = Join-Path $root ('scripts/windows/' + $file)
@@ -128,24 +129,34 @@ try {
     Pass-Hnb 'different release image ID refused before Docker inspection or load'
 
     Set-Item -Path Function:\Invoke-HnbDocker -Value $savedDocker
-    $child = Join-Path $temporary 'native mock.ps1'
+    # Use a native byte-oriented child: another PowerShell host can itself
+    # change console encodings, obscuring transport errors in the parent.
+    $child = Join-Path $temporary 'native mock.cjs'
     [System.IO.File]::WriteAllText($child, @'
-param([string]$Mode, [Parameter(ValueFromRemainingArguments=$true)][string[]]$Values)
-[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
-if($Mode -eq 'echo') { [Console]::OpenStandardInput().CopyTo([Console]::OpenStandardOutput()); exit 0 }
-if($Mode -eq 'args') { [Console]::Out.Write(($Values | ConvertTo-Json -Compress)); exit 0 }
-if($Mode -eq 'compose') { [Console]::Out.Write((@{lan=([Environment]::GetEnvironmentVariable('LAN_HOST')); image=([Environment]::GetEnvironmentVariable('HANNGU_IMAGE')); unrelated=$env:HNB_SMOKE_UNRELATED} | ConvertTo-Json -Compress)); exit 0 }
-if($Mode -eq 'flood') { $bytes=New-Object byte[] 65536; while($true) { [Console]::OpenStandardOutput().Write($bytes,0,$bytes.Length) } }
-exit 7
+const [mode, ...values] = process.argv.slice(2);
+if (mode === 'echo') { process.stdin.pipe(process.stdout); }
+else if (mode === 'args') { process.stdout.write(JSON.stringify(values)); }
+else if (mode === 'compose') { process.stdout.write(JSON.stringify({lan:process.env.LAN_HOST ?? '', image:process.env.HANNGU_IMAGE ?? '', unrelated:process.env.HNB_SMOKE_UNRELATED})); }
+else if (mode === 'flood') {
+  const bytes = Buffer.alloc(65536);
+  function write() { while (process.stdout.write(bytes)) {} }
+  process.stdout.on('drain', write);
+  write();
+}
+else { process.exitCode = 7; }
 '@, (New-Object System.Text.UTF8Encoding($false)))
-    $script:HnbDockerPath = (Get-Process -Id $PID).Path
-    $script:HnbDockerPrefix = @('-NoLogo', '-NoProfile', '-NonInteractive', '-File', $child)
+    $script:HnbDockerPath = (Get-Command node -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
+    $script:HnbDockerPrefix = @($child)
     $binaryInput = Join-Path $temporary 'binary input'
     $binaryOutput = Join-Path $temporary 'binary output'
-    [System.IO.File]::WriteAllBytes($binaryInput, [byte[]]@(0, 255, 254, 13, 10, 239, 187, 191, 128, 129))
+    [System.IO.File]::WriteAllBytes($binaryInput, [byte[]]@(0..255))
+    # Reproduce Windows PowerShell CI's UTF-8 console with a preamble. Raw
+    # Docker stdin must stay exact even if the caller selected that encoding.
+    [Console]::InputEncoding = [System.Text.Encoding]::UTF8
     [void](Invoke-HnbDocker -Arguments @('echo') -InputFile $binaryInput -OutputFile $binaryOutput)
     Assert-Hnb ((Get-FileHash -LiteralPath $binaryInput -Algorithm SHA256).Hash -eq (Get-FileHash -LiteralPath $binaryOutput -Algorithm SHA256).Hash) 'Binary stream was altered.'
-    Pass-Hnb 'native binary stdin/stdout transport preserves all bytes'
+    Assert-Hnb ([Convert]::ToBase64String([Console]::InputEncoding.GetPreamble()) -ceq [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetPreamble())) 'Caller input encoding was changed.'
+    Pass-Hnb 'native binary stdin/stdout preserves all 256 byte values with BOM-enabled caller encoding'
 
     $unicode = ([string][char]0x6D77) + ' ' + ([string][char]0x1EAD) + "`n"
     $textOutput = Join-Path $temporary 'UTF8 output'
@@ -201,5 +212,6 @@ finally {
     [Environment]::SetEnvironmentVariable('LAN_HOST', $savedLanHost)
     [Environment]::SetEnvironmentVariable('HANNGU_IMAGE', $savedAppImage)
     [Environment]::SetEnvironmentVariable('HNB_SMOKE_UNRELATED', $savedUnrelated)
+    [Console]::InputEncoding = $savedInputEncoding
     if (Test-Path -LiteralPath $temporary) { Remove-Item -LiteralPath $temporary -Recurse -Force }
 }

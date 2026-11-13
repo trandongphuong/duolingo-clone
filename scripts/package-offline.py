@@ -29,7 +29,7 @@ COMMIT_ID = re.compile(r"[0-9a-f]{40}(?:[0-9a-f]{24})?\Z")
 VERSION = re.compile(r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?\Z")
 
 REQUIRED_FILES = (
-    "compose.yaml", "compose.tls.yaml", ".env.example", "LICENSE", "README.md",
+    "compose.yaml", "compose.tls.yaml", ".env.example", "LICENSE", "README.md", "IMPLEMENTATION_STATUS.md",
     "docs/LAN_DEPLOYMENT.md", "docs/LAN_HTTPS.md", "docs/WINDOWS_LOCAL.md",
     "docs/OFFLINE_RELEASE.md", "docs/DOWNLOAD_LOCAL.md", "docs/DEPENDENCIES.md", "docs/ASSET_LICENSES.md",
     "docs/ACCEPTANCE_REPORT.md", "docs/docker/nginx.conf", "docs/docker/nginx-tls.conf",

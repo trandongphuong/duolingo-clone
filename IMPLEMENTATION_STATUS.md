@@ -138,3 +138,10 @@
 - ENOSPC do8GB/VFS đã được xử lý bằng dọn đúngcache build và artifacts thử; giữvolumes/backup. Không có dữ liệu thật bị xóa. Sourcecontainers đã dừng saukiểm thử để đủ dung lượng xuấtimage/ZIP.
 - Bằng chứng: `docs/verification/local-release-checks.txt`, `local-tls.txt`, `media-revocation.txt`. Đang xuất gói và tạo download draft; Windowsmáyđích/D02 vẫn NOT TESTED, chưa tuyên bố nghiệm thu cuối.
 - Đã tạo ZIP khoảng252MiB và kiểmCRC/từngmemberSHA256/metadata/allowlist; export/load4images cùngdaemon PASS. Bổ sung bằng chứng đã lọc vào gói; checksumZIP cụ thể nằm ngoàiZIP để tránh tự tham chiếu. Đang xác minh CI tạo draft download và PowerShell5.1 trên Windowsrunner; không coi sourceZIP của GitHub là bộ cài.
+
+## 2026-11-13 — Kiểm tra Windows runner và phân phối bản local
+
+- Đã push `c6848ca` lên nhánh local và mở [draft PR #3](https://github.com/trandongphuong/duolingo-clone/pull/3), base là nhánh demo; chưa merge hoặc thay đổi Render.
+- Run đầu `43354550432` trên Windows Server2022/PowerShell5.1: parse/configuration/NTFS ACL operation/kiểm SHA-image PASS đến bước truyền binary; **FAIL** ở so sánh byte của transport. Job build/upload bị bỏ qua đúng dependency nên chưa có gói draft từ run này. Đang sửa và chạy lại; không suy ra Windows PASS từ PowerShell7 trên Linux.
+- Rà soát độc lập không phát hiện thêm FAIL sản phẩm bắt buộc. Bổ sung nhật ký này vào allowlist ZIP để các tham chiếu hướng dẫn không bị thiếu; làm rõ báo cáo nền D06 có trước demo Render được người dùng cho phép. Builder guard11tests chạy lại PASS.
+- Đã sửa nguyên nhân transport: .NET Framework tạo `StandardInput` writer theo `Console.InputEncoding` và có thể thêm BOM trước raw stream. Chọn UTF-8 không BOM trong lúc tạo pipe rồi khôi phục encoding của caller; .NET mới dùng `StandardInputEncoding`. Regression dùng native Node, so SHA đủ256giá trị byte với caller bật BOM, UTF-8 stdin và argv Unicode; PowerShell7/Linux13checks và backup smoke chạy lại PASS. Đang đẩy bản sửa để xác minh PowerShell5.1 thật.

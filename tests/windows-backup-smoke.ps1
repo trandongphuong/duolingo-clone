@@ -1,6 +1,7 @@
 # Pester-free validation. Docker calls and Windows ACLs are mocked; Node really
 # parses generated binary tar/gzip payloads. No container or existing DB is used.
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '../scripts/windows/Common.ps1')
 Set-StrictMode -Version 2.0
 . (Join-Path $PSScriptRoot '../scripts/windows/BackupRestore.ps1')
 
@@ -65,7 +66,7 @@ function Invoke-TestValidator([string]$Path) {
     $settings.RedirectStandardError = $true
     $process = New-Object Diagnostics.Process
     $process.StartInfo = $settings
-    $null = $process.Start()
+    $null = Start-HnbNativeProcess -Process $process
     $sourceStream = [IO.File]::OpenRead($Path)
     try { $sourceStream.CopyTo($process.StandardInput.BaseStream) } finally { $sourceStream.Dispose(); $process.StandardInput.Close() }
     $null = $process.StandardOutput.ReadToEnd()

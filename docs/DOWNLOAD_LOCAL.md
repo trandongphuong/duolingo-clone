@@ -20,7 +20,7 @@ Giải nén ZIP vào thư mục riêng, rồi đọc [hướng dẫn Windows](WI
 
 ## Workflow thực hiện gì
 
-Workflow chỉ chạy tự động khi chính file `.github/workflows/local-release.yml` được cập nhật trên nhánh local release. Các commit mã/tài liệu thông thường không tự tạo thêm bản build. `workflow_dispatch` dùng được khi workflow đã hiện trong default branch theo quy tắc GitHub; không tự merge để bật chức năng này.
+Workflow chạy tự động khi file `.github/workflows/local-release.yml`, helper `scripts/windows/**`, kiểm thử `tests/windows-*.ps1` hoặc packager `scripts/package-offline.py` được cập nhật trên nhánh local release. Các commit mã/tài liệu khác không tự tạo thêm bản build. `workflow_dispatch` dùng được khi workflow đã hiện trong default branch theo quy tắc GitHub; không tự merge để bật chức năng này.
 
 Workflow chỉ cho phép repository public hiện tại và runner Windows/Ubuntu tiêu chuẩn. Job Windows chạy hai bộ kiểm thử helper bằng **Windows PowerShell 5.1**; Docker được mô phỏng trong các bài này, không cần/cài Docker engine trên runner Windows. Job Ubuntu chỉ tiếp tục khi job Windows PASS: checkout đúng SHA, không lưu Git credentials, chạy guard tests của packager, build image từ source đã commit, xuất image và đóng ZIP theo allowlist. Token GitHub chỉ được đưa vào bước tạo/upload draft; không đưa token vào Docker build, image hoặc bộ cài. Job Windows có `contents: read`; quyền `contents: write` của job Ubuntu chỉ phục vụ draft release trong repository này. Không deploy web, đổi Render, merge main hoặc publish release.
 
