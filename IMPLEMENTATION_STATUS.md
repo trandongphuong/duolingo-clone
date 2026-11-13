@@ -137,3 +137,4 @@
 - Backup/restore thật sang project/volumes/DB mới PASS:16table+sequencefingerprint và2mediaSHA khớp; 3khóa/12bài/120mục/800điểm/4bài hoàn thành. Saurestore đăng nhậpHTTPS, đọc báo cáo/byte/range media/logout-replay và egress-deny đều PASS.
 - ENOSPC do8GB/VFS đã được xử lý bằng dọn đúngcache build và artifacts thử; giữvolumes/backup. Không có dữ liệu thật bị xóa. Sourcecontainers đã dừng saukiểm thử để đủ dung lượng xuấtimage/ZIP.
 - Bằng chứng: `docs/verification/local-release-checks.txt`, `local-tls.txt`, `media-revocation.txt`. Đang xuất gói và tạo download draft; Windowsmáyđích/D02 vẫn NOT TESTED, chưa tuyên bố nghiệm thu cuối.
+- Đã tạo ZIP khoảng252MiB và kiểmCRC/từngmemberSHA256/metadata/allowlist; export/load4images cùngdaemon PASS. Bổ sung bằng chứng đã lọc vào gói; checksumZIP cụ thể nằm ngoàiZIP để tránh tự tham chiếu. Đang xác minh CI tạo draft download và PowerShell5.1 trên Windowsrunner; không coi sourceZIP của GitHub là bộ cài.

@@ -33,6 +33,8 @@ REQUIRED_FILES = (
     "docs/LAN_DEPLOYMENT.md", "docs/LAN_HTTPS.md", "docs/WINDOWS_LOCAL.md",
     "docs/OFFLINE_RELEASE.md", "docs/DOWNLOAD_LOCAL.md", "docs/DEPENDENCIES.md", "docs/ASSET_LICENSES.md",
     "docs/ACCEPTANCE_REPORT.md", "docs/docker/nginx.conf", "docs/docker/nginx-tls.conf",
+    "docs/verification/local-release-checks.txt", "docs/verification/local-tls.txt",
+    "docs/verification/media-revocation.txt",
     "scripts/docker-backup.sh", "scripts/docker-restore.sh", "scripts/offline-load.sh",
     "scripts/docker-offline-verify.sh", "data/vocabulary_sample_100.csv", "data/test-tone.wav",
 )

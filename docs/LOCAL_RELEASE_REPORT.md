@@ -26,10 +26,13 @@ Ngày cập nhật: **2026-11-13**, Asia/Bangkok; các phép kiểm runtime dư�
 | Compose browser dưới egress-deny | PASS | 9/9,3.6phút; DB private; app không defaultIPv4route và publicTCP ENETUNREACH |
 | HTTPS và readiness | PASS trong cloud | CA đúng→HTTP200, CA chưa tin→curl60; cookieSecure/HttpOnly/Lax,logout/replay401; readiness từ chối mật khẩu DB sai và session secret quá ngắn |
 | Backup/restore DB và media thật | PASS | Instance/volumes mới,16table+sequencefingerprint khớp; 3khóa/12bài/120mục/800điểm/4bài hoàn thành/2media; byte/range đọc qua HTTPS saurestore khớp |
-| ZIP thực tế và đường dẫn tải | ĐANG HOÀN TẤT | Builder đã có11guardtests; chỉ ghi PASS sau khi tạo/kiểm ZIP và run phân phối thành công |
+| ZIP thực tế và image transfer cùng daemon | PASS | Gói khoảng252MiB; CRC/từng SHA256/metadata/allowlist đã kiểm; export/load bốn image khớp ID, không registry |
+| Đường dẫn tải draft qua CI | ĐANG KIỂM CHỨNG | Workflow chỉ chạy trên public runner và tạo draft; chỉ dùng run hoàn tất, xem [hướng dẫn tải](DOWNLOAD_LOCAL.md) |
 | Windows10/11 + Docker/WSL2 và airgap độc lập | NOT TESTED | Không có quyền vào máy đích; D02 và xác minh chứng chỉ/firewall/engine cần nghiệm thu tại chỗ |
 
 Bằng chứng: [kiểm tra local](verification/local-release-checks.txt), [TLS](verification/local-tls.txt), [thu hồi quyền upload](verification/media-revocation.txt). Fingerprint DB+sequence sau restore: `349b3689ac8c54230c609eccbd16037e53da8038c9be44d8fef8d5d7e80d8e1f`.
+
+ZIP mang `RELEASE.json`, image archive và các SHA256; lấy hash của gói cụ thể từ `.zip.sha256` và run/draft đã được xác minh. Image transfer cùng daemon không được tính thành máy airgap độc lập.
 
 Không có FAIL ứng dụng đang mở trong các phép kiểm trên. ENOSPC của ổ cloud8GB đã được xử lý bằng dọn cache build, giữ nguyên volumes; không xem lần tạo container lỗi do dung lượng là PASS trước khi chạy lại thành công. Quyền đọc public nginx config/certificate trong workspace đã sửa trước khi kiểm TLS; key fixture chỉ phục vụ kiểm thử, không phát hành.
 

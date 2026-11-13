@@ -79,5 +79,17 @@ Resolved environment issues:
 NOT TESTED at this evidence checkpoint:
   Physical Windows10/11, its PowerShell5.1/NTFS/DockerWSL2 integration,
   real LAN/airgap independentmachine, approvedproductioncertificates/firewall,
-  final releaseZIP and remote draft upload. Artifact checks recorded separately.
+  remote draft upload. Actual local artifact checks follow below.
   All data in these tests was synthetic; no realuser/limitedmaritimedata used.
+
+PASS actual local artifact build/load:
+  offline-export.sh work/hnb-images.tar.gz —exit0,roughly251MiB,
+  exactarchive+manifestSHA sidecars and4imageIDs.
+  offline-load.sh work/hnb-images.tar.gz —exit0,all4expectedimagesloaded
+  andIDsmatched; no registry required. Same daemon,notindependentairgap.
+  package-offline.py --images... --outputwork/releases/...zip --version1.0.0-rc.1
+  exit0; around252MiB,linux/amd64; metadataSourceCommitc5e68f3.
+  Verified actualZIP CRC,eachSHA256SUMS memberhash,unique/nontraversal paths,
+  RELEASE.json version/platform/source/packagingcommits and no.env/key/dump/
+  work/node_modules artifactmembers. Finalbundle includes sanitized evidence.
+  The concrete ZIP hash is external*.zip.sha256,toavoidself-referentialhashing.
