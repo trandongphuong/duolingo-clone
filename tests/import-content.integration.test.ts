@@ -17,6 +17,8 @@ test(
     process.env.SESSION_PASSWORD ||= randomUUID() + randomUUID();
     const { default: db, pool } = await import("../db/drizzle");
     const schema = await import("../db/schema");
+    const { localUsers } = await import("../db/auth-schema");
+    const { DUMMY_PASSWORD_HASH } = await import("../lib/password");
     const { eq, inArray } = await import("drizzle-orm");
     const {
       createAuthorLesson,
@@ -32,6 +34,15 @@ test(
     let courseId = 0;
     const lessonIds: number[] = [];
     try {
+      await db.insert(localUsers).values(
+        [author, admin].map((actor) => ({
+          id: actor.id,
+          username: `content-${actor.role}-${actor.id}`,
+          displayName: "Content test actor",
+          passwordHash: DUMMY_PASSWORD_HASH,
+          role: actor.role as "author" | "admin",
+        }))
+      );
       const created = await createAuthorLesson(author, {
         courseTitle: "Khóa kiểm thử",
         slug: prefix,
@@ -356,6 +367,9 @@ test(
       }
       if (courseId)
         await db.delete(schema.courses).where(eq(schema.courses.id, courseId));
+      await db
+        .delete(localUsers)
+        .where(inArray(localUsers.id, [author.id, admin.id]));
       await pool.end();
     }
   }

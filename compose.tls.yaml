@@ -1,0 +1,39 @@
+# Optional LAN HTTPS. Docker Compose >= 2.24.4 is required for !override.
+# Only the TLS port is published; the base HTTP publication is replaced.
+services:
+  app:
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set the exact HTTPS APP_ORIGIN for the LAN certificate}
+      SESSION_SECURE: "true"
+
+  tools:
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:?Set the exact HTTPS APP_ORIGIN for the LAN certificate}
+      SESSION_SECURE: "true"
+
+  ingress:
+    ports: !override
+      - "${LAN_HOST:-127.0.0.1}:${LAN_PORT:-8443}:8443"
+    volumes:
+      - type: bind
+        source: ./docs/docker/nginx-tls.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${TLS_CERT_FILE:?Set TLS_CERT_FILE to the approved PEM certificate chain}
+        target: /run/tls/server.crt
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${TLS_KEY_FILE:?Set TLS_KEY_FILE to the private PEM key}
+        target: /run/tls/server.key
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      # A loopback-only HTTP readiness endpoint avoids weakening TLS validation
+      # or requiring the public certificate's CA inside the nginx image.
+      test: ["CMD", "wget", "-Y", "off", "-q", "-O", "/dev/null", "http://127.0.0.1:8081/healthz"]

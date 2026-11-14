@@ -112,3 +112,36 @@
 - PostgreSQL `hnb-demo-db-xpuz` available/Free, database `hnb_demo`, IP allowlist rỗng; hết hạn **10/12/2026** theo metadata Render. Web `hnb-demo-web-xpuz` Free, không có persistent disk; media tạm theo giới hạn đã thông báo.
 - NOT TESTED: public-client/browser/đăng nhập/E2E hosted. Curl qua proxy bị CONNECT 403; Chromium lỗi tunnel; công cụ web không truy cập được URL. Đây là hạn chế môi trường, không suy ra ứng dụng FAIL. Tool SQL bị DB private từ chối; không mở DB public. Upload hosted/cookie hosted/thử sleep/expiry và billing overage chưa kiểm chứng.
 - Bằng chứng `docs/verification/render-hosting.txt`, `docs/verification/render-public.txt`; kiểm thử local vẫn PASS theo `render-demo.txt`. Render Live không đồng nghĩa hoàn tất nghiệm thu toàn bộ hoặc chứng nhận airgap độc lập D02.
+
+## 2026-11-11 — Local release / rà soát quyền ghi
+
+- Người dùng yêu cầu tiếp tục tới bản triển khai local và xác nhận máy đích Windows 10/11. Tạo nhánh `feat/han-ngu-bien-local-release`; giữ demo Render hiện tại, không đổi hạ tầng cloud.
+- Rà lại đầy đủ đặc tả/nghiệm thu. Đã bổ sung kiểm tra active/role và khóa actor trong transaction create/save/publish/media, trước khóa nội dung; request bắt đầu trước khi tài khoản bị khóa/hạ quyền không còn ghi bằng quyền cũ. Upload lỗi chỉ dọn file vừa tạo thành công, không xóa nhầm file tồn tại.
+- PASS full unit+PostgreSQL integration trên DB giả mới `hnb_local_release_test`: **65/65**, fail0/skip0, exit0,30.3s. Bao gồm 6 race create/save/publish × khóa/hạ quyền, giữ nguyên lịch sử/137điểm; 12 fault tests cho export/backup/restore. Lint/typecheck trước build PASS.
+- Đang bổ sung PowerShell native, TLS overlay và gói ZIP offline; build/E2E mới và HTTP regression thu hồi quyền upload đang thực hiện. Chưa ghi PASS cho các phần chưa chạy. Máy Windows/airgap độc lập vẫn NOT TESTED.
+- Đã dừng/xóa đúng containers của project restore giả cũ để giải phóng dung lượng, bảo toàn toàn bộ named volumes/backup. DB mới chỉ chứa dữ liệu kiểm thử; không chạm dữ liệu thật.
+
+## 2026-11-12 — Local release / công cụ Windows và vận hành
+
+- Đã khôi phục môi trường sau tạm dừng; kiểm tra Docker/socket và DB giả trước khi tiếp tục. Unit/integration mới nhất **75/75 PASS**, fail0/skip0,31.4s; standalone browser **9/9 PASS**,2.1phút; HTTP upload bị hạ quyền/khóa **2race PASS** với kiểm DB/files không đổi.
+- Bổ sung PowerShell5.1-compatible native entry point, common transport binary/UTF8, Start/Doctor kiểm context/localLinux/amd64 và imageID, Configure RNG/ACL, LoadImages exactSHA, CreateAdmin stdin, Backup/Restore staging. pwsh7.6.9/Linux **13smokechecks PASS**; đây chưa phải kiểm chứng Windows5.1/NTFS/Docker thật.
+- Công cụ Bash backup/restore/export/load đã hardening staging/khóa/publication; **22faulttests PASS**, gồm checksum thiếu/trùng/đường dẫn lạ và dump hỏng trước ghi DB. TLS overlay thay HTTP publication bằng một cổng TLS, DB private.
+- Builder ZIP Python stdlib **11guardtests PASS**; nguồn sạch, imageversion/provenance/ID và allowlist; không có Node/Python/source runtime trên máy đích. Chuẩn bị draft download bằng GitHub standard public runner và Release assets; không dùng artifact storage tính phí hoặc publish release cuối.
+- [Báo cáo RC](docs/LOCAL_RELEASE_REPORT.md) ghi phạm vi hiện có. Source Docker/TLS/Composeoffline/restore mới và gói tải thực vẫn đang thực hiện; chưa ghi PASS các mục này. D02 và máy Windows đích vẫn NOT TESTED.
+
+## 2026-11-13 — Local release / kiểm chứng runtime và phục hồi
+
+- Đã xác nhận kết quả chạy ngày12/11: sourceDockerRC build PASS trên `c5e68f3`, frozeninstall30.7s,Nextcompile26.7s,TypeScript13.4s; app/tools có OCIrevision/version/build-method. Lint/typecheck/audit0advisory PASS.
+- ComposeRC mới **9/9 E2E PASS**,3.6phút dưới điều kiện app không defaultIPv4route/publicTCPENETUNREACH và DB private. HTTPS xác thực CA PASS, CA chưa tin bị từ chối; cookieSecure/HttpOnly/Lax,adminAPI200/guest401/logout-replay401 PASS.
+- Readiness đã kiểm DB/schema/session thay vì chỉ guestHTML; DB sai credential hoặc sessionsecret ngắn trảexit1, cấu hình hợp lệ exit0. TLShealth dùng loopback8081 nên offlineverify hỗ trợ cảHTTP/TLS.
+- Backup/restore thật sang project/volumes/DB mới PASS:16table+sequencefingerprint và2mediaSHA khớp; 3khóa/12bài/120mục/800điểm/4bài hoàn thành. Saurestore đăng nhậpHTTPS, đọc báo cáo/byte/range media/logout-replay và egress-deny đều PASS.
+- ENOSPC do8GB/VFS đã được xử lý bằng dọn đúngcache build và artifacts thử; giữvolumes/backup. Không có dữ liệu thật bị xóa. Sourcecontainers đã dừng saukiểm thử để đủ dung lượng xuấtimage/ZIP.
+- Bằng chứng: `docs/verification/local-release-checks.txt`, `local-tls.txt`, `media-revocation.txt`. Đang xuất gói và tạo download draft; Windowsmáyđích/D02 vẫn NOT TESTED, chưa tuyên bố nghiệm thu cuối.
+- Đã tạo ZIP khoảng252MiB và kiểmCRC/từngmemberSHA256/metadata/allowlist; export/load4images cùngdaemon PASS. Bổ sung bằng chứng đã lọc vào gói; checksumZIP cụ thể nằm ngoàiZIP để tránh tự tham chiếu. Đang xác minh CI tạo draft download và PowerShell5.1 trên Windowsrunner; không coi sourceZIP của GitHub là bộ cài.
+
+## 2026-11-13 — Kiểm tra Windows runner và phân phối bản local
+
+- Đã push `c6848ca` lên nhánh local và mở [draft PR #3](https://github.com/trandongphuong/duolingo-clone/pull/3), base là nhánh demo; chưa merge hoặc thay đổi Render.
+- Run đầu `43354550432` trên Windows Server2022/PowerShell5.1: parse/configuration/NTFS ACL operation/kiểm SHA-image PASS đến bước truyền binary; **FAIL** ở so sánh byte của transport. Job build/upload bị bỏ qua đúng dependency nên chưa có gói draft từ run này. Đang sửa và chạy lại; không suy ra Windows PASS từ PowerShell7 trên Linux.
+- Rà soát độc lập không phát hiện thêm FAIL sản phẩm bắt buộc. Bổ sung nhật ký này vào allowlist ZIP để các tham chiếu hướng dẫn không bị thiếu; làm rõ báo cáo nền D06 có trước demo Render được người dùng cho phép. Builder guard11tests chạy lại PASS.
+- Đã sửa nguyên nhân transport: .NET Framework tạo `StandardInput` writer theo `Console.InputEncoding` và có thể thêm BOM trước raw stream. Chọn UTF-8 không BOM trong lúc tạo pipe rồi khôi phục encoding của caller; .NET mới dùng `StandardInputEncoding`. Regression dùng native Node, so SHA đủ256giá trị byte với caller bật BOM, UTF-8 stdin và argv Unicode; PowerShell7/Linux13checks và backup smoke chạy lại PASS. Đang đẩy bản sửa để xác minh PowerShell5.1 thật.
