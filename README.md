@@ -6,6 +6,8 @@
 
 **Bản cài local cho Windows 10/11:** xem [cách tải đúng bộ cài](docs/DOWNLOAD_LOCAL.md), [hướng dẫn PowerShell](docs/WINDOWS_LOCAL.md), [gói ZIP offline](docs/OFFLINE_RELEASE.md) và [HTTPS LAN](docs/LAN_HTTPS.md). Máy đích dùng Docker Linux/amd64 đã được chuẩn bị; không cần Node.js, pnpm hoặc source sau khi nhận gói image. Bản `1.0.0-rc.1` phục vụ nghiệm thu, chưa được chứng nhận trên máy Windows/airgap độc lập.
 
+[Draft bộ cài RC đã tạo](https://github.com/trandongphuong/duolingo-clone/releases/tag/untagged-c311fab4552ae4d0613c) — cần đăng nhập GitHub bằng tài khoản chủ/quyền ghi. [CI Windows PowerShell 5.1, build và upload PASS](https://github.com/trandongphuong/duolingo-clone/actions/runs/43355338445); xem [báo cáo local cập nhật](docs/LOCAL_RELEASE_REPORT.md) cho các mục còn NOT TESTED.
+
 **Demo Render Free:** [mở trang đăng nhập](https://hnb-demo-web-xpuz.onrender.com/sign-in). Tài khoản `demo_admin`; chủ tài khoản xem secret `DEMO_ADMIN_PASSWORD` tại Environment của [web service](https://dashboard.render.com/web/srv-dbpha4on74is73dvam2g). Database demo hết hạn **10/12/2026**, file tải lên lưu tạm. Demo này độc lập với dữ liệu bản cài local; [bằng chứng hosting](docs/verification/render-hosting.txt).
 
 ## Chạy phát triển với dữ liệu giả

@@ -2,6 +2,18 @@
 
 Bộ cài offline là file **`han-ngu-bien-<version>-linux-amd64.zip`** và checksum **`.zip.sha256`**. File **Source code (zip)** do GitHub tự sinh chỉ chứa mã nguồn, không có bốn image và không phải bộ cài Windows ngoại tuyến.
 
+## Bản RC đã tạo
+
+Cập nhật **17/11/2026**: [mở draft bộ cài 1.0.0-rc.1](https://github.com/trandongphuong/duolingo-clone/releases/tag/untagged-c311fab4552ae4d0613c), build từ commit `7311a4b5a1880368c2108e98f3f5a5786fb7c677`. [Run 43355338445](https://github.com/trandongphuong/duolingo-clone/actions/runs/43355338445) ngày 13/11 đã PASS Windows PowerShell 5.1, build Docker, đóng gói và xác minh hai asset upload hoàn tất.
+
+Đăng nhập GitHub bằng tài khoản chủ repository hoặc có quyền ghi để xem draft; khách chưa được cấp quyền có thể thấy **404**. Trong Assets tải `han-ngu-bien-1.0.0-rc.1-linux-amd64.zip` và `.zip.sha256`. SHA-256 của ZIP đã được run xác minh:
+
+```text
+82f518767107aef348963e0dedf9397db6330ee1860994eb71e482f0b1d06a2e
+```
+
+Tài liệu trong ZIP là snapshot tại commit đóng gói, trước khi run kết thúc. Kết quả CI và hướng dẫn bổ sung sau đó nằm trong [báo cáo RC](LOCAL_RELEASE_REPORT.md) và [hướng dẫn Windows trên nhánh local](https://github.com/trandongphuong/duolingo-clone/blob/feat/han-ngu-bien-local-release/docs/WINDOWS_LOCAL.md). Không cần tải source hoặc build lại chỉ để đọc cập nhật tài liệu. Bản RC vẫn chưa được nghiệm thu Docker/WSL2 trên Windows 10/11 thật hoặc máy airgap độc lập.
+
 ## Nơi nhận gói
 
 1. Đăng nhập GitHub bằng tài khoản chủ repository hoặc có quyền ghi.

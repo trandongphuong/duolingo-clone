@@ -1,0 +1,51 @@
+Local installer CI — observed 2026-11-17 Asia/Bangkok.
+Execution occurred 2026-11-13; synthetic fixtures only.
+Repository: trandongphuong/duolingo-clone (public).
+Branch: feat/han-ngu-bien-local-release.
+Source/packaging commit: 7311a4b5a1880368c2108e98f3f5a5786fb7c677.
+Run: https://github.com/trandongphuong/duolingo-clone/actions/runs/43355338445
+
+PASS windows-helpers, job 131655927617:
+  Microsoft Windows Server 2022, Windows PowerShell 5.1, Node 22.23.4.
+  Both helper steps completed successfully.
+  Parse/ASCII compatibility; private configuration and no overwrite;
+  private listener checks; secret redaction; archive/manifest SHA guards;
+  exact release image IDs; duplicate/wrong-release refusal.
+  Binary stdin/stdout preserves all 256 byte values with BOM-enabled caller
+  encoding; caller encoding restored; UTF-8 without BOM; argv Unicode,
+  spaces, quotes and trailing backslash preserved.
+  Parent Compose overrides cleared only in child; failed output stops producer.
+  Windows helper smoke checks: 13 PASS.
+  Backup/restore mocks and actual Node archive validation: PASS.
+  Regular binary TAR accepted; traversal/links/corruption rejected.
+  Full real PostgreSQL restore and Linux engine on Windows were not exercised.
+
+PASS draft-installer, job 131656073749:
+  Ubuntu 24.04 standard runner; checkout SHA validated.
+  Packager guard tests: 11 PASS.
+  Frozen pnpm install, Next production build and source Docker build: success.
+  tools sha256:a9555219fa9308574e6fa6ef0ace68255c366d20504b1194c5a44170df18be8c
+  app   sha256:1f4e3a965c81d5f25b8acc1c358b0cd3352d0ae0350ef281e26030016955ac79
+  Four-image export, SHA/ID/platform/provenance guards and packaging: success.
+  Draft creation/upload and subsequent GitHub API verification: success.
+  Exactly two assets checked for expected name, size, uploaded state and SHA256.
+  No asset overwrite, release publication, merge or Render deployment.
+
+Verified installer draft (owner/write-access GitHub login required):
+https://github.com/trandongphuong/duolingo-clone/releases/tag/untagged-c311fab4552ae4d0613c
+Desired draft tag: local-1.0.0-rc.1-7311a4b5a188
+Assets: han-ngu-bien-1.0.0-rc.1-linux-amd64.zip and .zip.sha256.
+ZIP SHA256:
+82f518767107aef348963e0dedf9397db6330ee1860994eb71e482f0b1d06a2e
+
+Resolved FAIL:
+  First run 43354550432 / Windows job 131653340775 failed binary SHA check;
+  build/upload skipped. .NET Framework Process.Start used BOM-enabled console
+  input encoding for an AutoFlush writer. Commit 7311a4b explicitly selects
+  BOM-free input encoding when pipes are constructed, restores caller setting,
+  and uses a native byte-oriented child for regression. Subsequent run above PASS.
+
+NOT TESTED:
+  Download in the recipient's authenticated browser; physical Windows 10/11
+  Docker/WSL2/CA/firewall and second-client LAN; independent-host airgap D02.
+  CI and draft do not establish final deployment acceptance or security approval.

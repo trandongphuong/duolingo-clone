@@ -19,6 +19,8 @@ Set-Location 'C:\HanNguBien'
 
 Tuân thủ chính sách thực thi script/ký mã của đơn vị. Nếu Windows đánh dấu gói tải từ Internet, chỉ gỡ chặn sau khi đã xác minh nguồn và checksum theo quy định; không đổi execution policy toàn máy sang Unrestricted/Bypass để chạy bộ cài.
 
+Nếu gặp lỗi “running scripts is disabled” hoặc yêu cầu chữ ký, kiểm tra `Get-ExecutionPolicy -List` và nhờ người quản lý áp dụng chính sách chạy/ký script đã được phép. Không tự vượt Group Policy hoặc tắt bảo vệ toàn máy. Gói không có trình cài tự nâng quyền.
+
 ## Chạy thử trên chính máy Windows
 
 Mặc định chỉ mở HTTP tại `127.0.0.1:3000`, không cho máy khác kết nối. Chế độ này dành cho thử nghiệm cô lập; LAN vận hành dùng HTTPS ở mục sau.
@@ -75,6 +77,7 @@ Backup chứa hash mật khẩu, phiên và tiến độ; lưu trong thư mục 
 Phục hồi **thay thế DB và media của project đang chọn**. Trước tiên thử trên project/config riêng có dữ liệu giả; với dữ liệu thật phải được chủ dữ liệu phê duyệt và có backup hiện trạng. Ví dụ dưới yêu cầu file `.env.restore-test` đã được tạo riêng bằng Configure với `-ProjectName hanngubien-restore-test -Origin http://localhost:3001`; không dùng file/env/volume của production.
 
 ```powershell
+.\scripts\windows\HanNguBien.ps1 -Action Configure -EnvironmentFile '.\.env.restore-test' -ProjectName hanngubien-restore-test -Origin 'http://localhost:3001'
 .\scripts\windows\HanNguBien.ps1 -Action Restore -EnvironmentFile '.\.env.restore-test' -BackupDirectory 'D:\HnbBackup\backup-20261111' -ConfirmReplace
 .\scripts\windows\HanNguBien.ps1 -Action Start -EnvironmentFile '.\.env.restore-test'
 ```
@@ -86,3 +89,16 @@ Restore kiểm checksum và archive, khởi động riêng database của projec
 Giữ nguyên thư mục/gói/config của bản cũ. Backup và thử restore trước; nhận gói mới dùng tag version mới, xác minh SHA/ID, rồi thử ở project riêng trước cửa sổ bảo trì. Chỉ dùng lại `.env`/project cũ khi người vận hành đã đối chiếu image version, migration và có kế hoạch rollback. Đổi biến `POSTGRES_PASSWORD` trong `.env` không tự đổi mật khẩu trên volume PostgreSQL đã tồn tại. Xem thêm [quy trình LAN](LAN_DEPLOYMENT.md).
 
 Syntax và mô phỏng transport có thể kiểm trên PowerShell7/Linux; điều đó không thay cho Windows PowerShell5.1 thật, ACL/NTFS, Docker Desktop/WSL, trust CA, firewall hoặc máy airgap độc lập. Chỉ đánh dấu PASS sau khi chạy được trên máy đích; trạng thái thực tế nằm trong `IMPLEMENTATION_STATUS.md` và báo cáo nghiệm thu. Bộ Windows entry point không tự triển khai vào hạ tầng thật.
+
+## Checklist nghiệm thu trên máy Windows
+
+Chỉ dùng tài khoản và nội dung giả trong project thử nghiệm. Ghi **PASS / FAIL / NOT TESTED** kèm ảnh/log cho từng mục; không gửi `.env`, mật khẩu, cookie, private key hoặc backup vào báo cáo công khai.
+
+1. Ghi phiên bản Windows, PowerShell (`$PSVersionTable.PSVersion`), `docker version`, `docker compose version`, SHA-256 của ZIP và `sourceCommit` trong `RELEASE.json`. Chạy Configure → LoadImages → Doctor → Start → CreateAdmin theo mục trên; không tải registry/build trên máy đích.
+2. Đăng nhập admin, tạo author/learner giả; author tạo khóa/chủ đề/bài, nhập ít nhất 10 dòng CSV/XLSX có một dòng lỗi, sửa qua preview rồi gửi duyệt. Admin xuất bản; learner chỉ thấy nội dung đã cho phép.
+3. Ngắt kết nối Internet của máy thử theo cách được phép, giữ LAN nếu thử từ máy thứ hai. Học thẻ/quiz, sai một câu, upload/phát WAV mẫu, nhập CSV và kiểm trang không gọi tài nguyên ngoài. Nếu dùng HTTPS, xác minh CA/chứng chỉ, origin và Secure cookie; không bỏ qua cảnh báo TLS.
+4. Ghi điểm/tiến độ, đăng xuất/đăng nhập lại rồi Stop/Start; nội dung và tiến độ phải giữ nguyên. Chỉ kiểm trong project giả; không xóa volumes để tạo kết quả.
+5. Backup với `-StopApp`; restore sang project `.env.restore-test` riêng. So tài khoản, khóa, điểm/tiến độ và SHA-256 media trước/sau; app phải dừng sau Restore, chỉ mở lại sau khi kiểm tra.
+6. Với **D02**, chuyển ZIP/checksum sang **máy khác độc lập**, đã chuẩn bị engine nhưng không có image ứng dụng, không Internet/registry. Nạp image rồi chạy lại các bước trên. Thử trên cùng daemon, tắt Wi-Fi đơn thuần hoặc PASS trên runner CI không thay cho phép kiểm này.
+
+PowerShell 5.1 helper và backup smoke đã PASS trên Windows Server 2022 trong [run CI](https://github.com/trandongphuong/duolingo-clone/actions/runs/43355338445). CI dùng Docker mocks ở job Windows; không chứng nhận Docker/WSL2 trên Windows 10/11. Tài liệu trong ZIP là snapshot tại SHA đóng gói; xem [báo cáo RC cập nhật trên GitHub](https://github.com/trandongphuong/duolingo-clone/blob/feat/han-ngu-bien-local-release/docs/LOCAL_RELEASE_REPORT.md) khi nghiệm thu.
