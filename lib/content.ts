@@ -20,6 +20,7 @@ import {
 import { currentUser } from "@/lib/auth";
 import { mediaDiskPath } from "@/lib/media";
 import { canReadMedia } from "@/lib/media-access";
+import { lockAuthorWriteActor } from "@/lib/write-actor";
 import {
   generateExercises,
   vocabularySourceKey,
@@ -121,6 +122,7 @@ export async function createAuthorLesson(actor: ContentActor, input: unknown) {
   if (!data.courseId && (!data.courseTitle || !data.slug))
     throw new ContentError("Khóa mới cần tên và mã khóa.");
   return db.transaction(async (tx) => {
+    await lockAuthorWriteActor(tx, actor);
     let courseId = data.courseId;
     if (courseId) {
       const course = await tx.query.courses.findFirst({
@@ -381,6 +383,7 @@ export async function saveRows(actor: ContentActor, input: unknown) {
   verifyPreview(actor, data.lessonId, result.rows, data.receipt);
   await getEditableLesson(actor, data.lessonId, true);
   return db.transaction(async (tx) => {
+    await lockAuthorWriteActor(tx, actor);
     await tx.execute(
       sql`SELECT id FROM lessons WHERE id = ${data.lessonId} FOR UPDATE`
     );
@@ -546,6 +549,7 @@ export async function transitionLesson(actor: ContentActor, input: unknown) {
   if (action === "publish" && actor.role !== "admin")
     throw new ContentError("Chỉ quản trị viên được xuất bản.", 403);
   return db.transaction(async (tx) => {
+    await lockAuthorWriteActor(tx, actor);
     // Serialize one publication family before taking row locks to avoid clone/publish deadlocks.
     await tx.execute(
       sql`SELECT pg_advisory_xact_lock(${lesson.unitId}, hashtext(${lesson.code}))`

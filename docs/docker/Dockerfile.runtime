@@ -3,7 +3,10 @@
 # produced from a successful pinned-dependency production build on the build host.
 ARG NODE_IMAGE=node:24-bookworm-slim@sha256:01d566e8d94d8c619591d78652babfccd3c6992a3dffa9ed5ab39e11cf6c70e9
 FROM ${NODE_IMAGE} AS runtime
-COPY --link --chown=node:node . /
+ARG SOURCE_REVISION=unknown
+ARG RELEASE_VERSION=1.0.0
+LABEL org.opencontainers.image.revision=$SOURCE_REVISION org.opencontainers.image.version=$RELEASE_VERSION
+COPY --link --chown=1000:1000 . /
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000 MEDIA_DIR=/data/media
 USER node

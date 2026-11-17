@@ -2,6 +2,8 @@
 
 Ngày ghi nhận: **2026-11-10**, múi giờ Asia/Bangkok. Nguồn tiêu chí: `NGHIEM_THU.md` phiên bản 1.0.
 
+Phạm vi báo cáo này là bản nền tảng LAN trước demo. Người dùng đã cho phép demo Render riêng sau mốc kiểm chứng D06; xem [báo cáo demo](RENDER_DEMO.md) và [báo cáo local RC](LOCAL_RELEASE_REPORT.md) để biết trạng thái tiếp theo. Demo không phải triển khai production của bản LAN.
+
 **Trạng thái: chưa hoàn thành nghiệm thu cuối cùng.** Build và 41 kiểm thử unit/integration đã PASS. **26/27 tiêu chí PASS trong phạm vi đã ghi; 0 FAIL trên bản release; D02 còn NOT TESTED trên máy airgap độc lập.** Đã PASS 41/41 unit/integration,9/9 E2E standalone,9/9 E2E Compose chặn egress và backup/restore sang instance mới. Máy LAN thật chưa được chứng nhận; không suy ra PASS từ việc đã viết mã hoặc tài liệu. Đây không phải chứng nhận offline trong mạng LAN thật hay chứng nhận an toàn thông tin của đơn vị.
 
 ## Phiên bản và nguồn kiểm chứng

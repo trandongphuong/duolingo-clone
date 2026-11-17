@@ -111,6 +111,10 @@ Kiểm số khóa/bài/mục từ/tài khoản, đăng nhập, điểm/tiến đ
 
 ## 6. Kiểm tra offline có bằng chứng
 
+Bộ cài Windows và ZIP không cần source được mô tả tại [WINDOWS_LOCAL.md](WINDOWS_LOCAL.md) và [OFFLINE_RELEASE.md](OFFLINE_RELEASE.md). HTTPS trực tiếp trong nginx có overlay [LAN_HTTPS.md](LAN_HTTPS.md), dùng chứng chỉ người vận hành cấp và Compose2.24.4+. Không cần dịch vụ cấp chứng chỉ online tại runtime.
+
+Backup/restore hiện dùng khóa bảo trì chung trong volume media. Restore giải nén và kiểm media vào staging trước khi thử ghi DB; checksum phải bao phủ đúng hai tệp. Nếu lỗi sau khi thử `pg_restore`, database có thể đã được khôi phục trong khi media cần kiểm tra; script giữ app dừng, lock và staging/journal để phục hồi. Không xóa các tệp này hoặc bật app khi chưa kiểm tính nhất quán. Đây không phải transaction nguyên tử chung giữa PostgreSQL và filesystem.
+
 Đây là quy trình kiểm tra; trạng thái đã chạy thực tế nằm trong `IMPLEMENTATION_STATUS.md`, không suy ra PASS chỉ từ cấu hình.
 
 - Chạy `scripts/docker-offline-verify.sh` sau bootstrap để kiểm DB/ingress/app, app không có default IPv4 route và public TCP bị `ENETUNREACH`. Đây là kiểm mạng/readiness, không thay thế kiểm chức năng bên dưới.

@@ -8,8 +8,13 @@ if [[ ! -f .next/BUILD_ID || ! -f .next/standalone/server.js ]]; then
 fi
 app_image=${HANNGU_IMAGE:-han-ngu-bien:1.0}
 tools_image=${HANNGU_TOOLS_IMAGE:-han-ngu-bien-tools:1.0}
+source_revision=$(git rev-parse --verify HEAD)
+release_version=${RELEASE_VERSION:-$(node -p 'require("./package.json").version')}
 scripts/docker-pull-bases.sh
 node docs/docker/prepare-runtime.cjs work/docker-runtime
-docker build --file docs/docker/Dockerfile.runtime --target app -t "$app_image" work/docker-runtime
+docker build --file docs/docker/Dockerfile.runtime --target app \
+  --build-arg "SOURCE_REVISION=$source_revision" --build-arg "RELEASE_VERSION=$release_version" \
+  --label 'vn.hanngubien.build-method=tested-standalone' \
+  -t "$app_image" work/docker-runtime
 scripts/docker-runtime-alias.sh "$app_image" "$tools_image" tools
 echo 'Packaged tested standalone build and bundled maintenance CLI; no development data was copied.'

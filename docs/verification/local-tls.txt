@@ -1,0 +1,46 @@
+Local Compose HTTPS API verification — 2026-11-12
+Scope: actual local RC Docker runtime, loopback TLS ingress and synthetic admin.
+Target: https://localhost:33443
+Application runtime source: c5e68f3cf3b406e671a8a0937597f7a538782b73
+
+Command (public test paths only):
+  BASE_URL=https://localhost:33443 \
+  NODE_EXTRA_CA_CERTS=/workspace/duolingo-clone/work/local-tls/ca.crt \
+  node_modules/.bin/tsx tests/system/local-tls.ts
+Exit0.
+
+PASS — static helper validation before execution.
+  Scoped ESLint, full TypeScript check, Prettier and diff check exit0.
+  SSR form parser checks accepted character-referenced React action state,
+  empty action references, action keys, Unicode button text and script raw text.
+  These parser checks did not send requests or execute app JavaScript.
+
+PASS — real TLS API requests with certificate validation enabled.
+  APIRequestContext used ignoreHTTPSErrors=false and the process was launched
+  with the explicit generated QA CA. No -k, insecure TLS switch, Chromium
+  certificate exception or global host trust-store change was used.
+  The helper rejects NODE_TLS_REJECT_UNAUTHORIZED=0, non-loopback/non-HTTPS
+  targets, fixture/CA paths outside work, private-key CA input and off-origin
+  redirects before credentials can be sent elsewhere.
+
+Sanitized actual output:
+  PASS TLS: sign-in HTTP200 with the supplied QA CA and certificate validation enabled.
+  PASS guest API: HTTP401 over verified HTTPS.
+  PASS TLS login: synthetic admin reached learner pages; cookie Secure/HttpOnly/SameSite=Lax.
+  PASS authenticated admin API: HTTP200 over verified HTTPS.
+  PASS TLS logout/replay: current context and pre-logout cookie both rejected HTTP401.
+  PASS strict local TLS API regression; no credential or cookie values were printed.
+
+The login and logout POSTs used the actual server-rendered Next Server Action
+hidden fields, not fabricated action IDs. Only ordinary synthetic-account
+login/logout session writes were performed; roles, course content and learner
+progress were not changed by this helper. API contexts were disposed.
+
+NOT TESTED by this check:
+  Browser rendering/interaction over TLS, Windows CA trust/NTFS/firewall/engine,
+  production certificates, physical LAN/airgap host, and TLS protocol/cipher
+  negotiation matrix. This process-local generated QA CA is not a production
+  certificate or a Windows trust-store certification.
+
+Fixture passwords, session cookies, hashes, connection strings and private keys
+are absent from this evidence and were not printed by the helper.

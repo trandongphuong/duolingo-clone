@@ -3,7 +3,9 @@
 # readiness; acceptance still requires browser learner/author flows and restore.
 set -euo pipefail
 docker compose exec -T db sh -c 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"'
-docker compose exec -T ingress wget -Y off -q -O /dev/null http://127.0.0.1:8080/
+# The TLS overlay exposes a loopback-only HTTP health route; the base ingress
+# checks its local HTTP listener. Neither probe skips public TLS verification.
+docker compose exec -T ingress sh -c 'wget -Y off -q -O /dev/null http://127.0.0.1:8081/healthz 2>/dev/null || exec wget -Y off -q -O /dev/null http://127.0.0.1:8080/'
 docker compose exec -T app node <<'NODE'
 const fs = require("node:fs");
 const net = require("node:net");

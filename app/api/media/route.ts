@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, unlink, writeFile } from "node:fs/promises";
+import { mkdir, open, unlink } from "node:fs/promises";
 
 import db from "@/db/drizzle";
 import { mediaFiles } from "@/db/schema";
@@ -13,6 +13,7 @@ import {
   validateMedia,
 } from "@/lib/media";
 import { assertSameOrigin } from "@/lib/security";
+import { ActorWriteError, lockAuthorWriteActor } from "@/lib/write-actor";
 
 export const runtime = "nodejs";
 
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
     );
   }
   let id: string | null = null;
+  let fileCreated = false;
   try {
     const form = await readMediaForm(request);
     const file = form.get("file");
@@ -56,7 +58,13 @@ export async function POST(request: Request) {
     const mime = validateMedia(data, file.type);
     id = randomUUID();
     await mkdir(mediaDirectory(), { recursive: true, mode: 0o750 });
-    await writeFile(mediaDiskPath(id), data, { flag: "wx", mode: 0o640 });
+    const fileHandle = await open(mediaDiskPath(id), "wx", 0o640);
+    fileCreated = true;
+    try {
+      await fileHandle.writeFile(data);
+    } finally {
+      await fileHandle.close();
+    }
     const record = {
       id,
       path: `/api/media/${id}`,
@@ -64,13 +72,18 @@ export async function POST(request: Request) {
       size: data.length,
       createdBy: user.id,
     };
-    await db.insert(mediaFiles).values(record);
+    await db.transaction(async (tx) => {
+      await lockAuthorWriteActor(tx, user);
+      await tx.insert(mediaFiles).values(record);
+    });
     return Response.json(
       { id, path: record.path, mime, size: data.length },
       { status: 201 }
     );
   } catch (error) {
-    if (id) await unlink(mediaDiskPath(id)).catch(() => undefined);
+    if (id && fileCreated) await unlink(mediaDiskPath(id)).catch(() => undefined);
+    if (error instanceof ActorWriteError)
+      return Response.json({ error: error.message }, { status: error.status });
     if (error instanceof UploadTooLargeError)
       return Response.json({ error: error.message }, { status: 413 });
     if (

@@ -69,7 +69,23 @@ services:
     cap_drop:
       - ALL
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        - CMD
+        - node
+        - -e
+        - |
+          const {Pool} = require('pg');
+          const pool = new Pool({connectionString: process.env.DATABASE_URL, max: 1, connectionTimeoutMillis: 1500, query_timeout: 1500});
+          (async () => {
+            try {
+              if ((process.env.SESSION_PASSWORD || '').length < 32) throw Error('session');
+              const result = await pool.query("SELECT to_regclass('public.users') IS NOT NULL AS ready");
+              if (!result.rows[0].ready) throw Error('schema');
+              const response = await fetch('http://127.0.0.1:3000/sign-in', {signal: AbortSignal.timeout(1500)});
+              if (!response.ok) throw Error('http');
+            } catch { process.exitCode = 1; }
+            finally { await pool.end(); }
+          })().catch(() => process.exit(1));
       interval: 10s
       timeout: 5s
       retries: 12
